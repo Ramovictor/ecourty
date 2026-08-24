@@ -1,18 +1,61 @@
-<div class="container">
-    <header
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-        <div class="col-md-3 mb-2 mb-md-0"> <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-                <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap">
-                    <use xlink:href="#bootstrap"></use>
-                </svg> </a> </div>
-        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
-            <li><a href="#" class="nav-link px-2">Features</a></li>
-            <li><a href="#" class="nav-link px-2">Pricing</a></li>
-            <li><a href="#" class="nav-link px-2">FAQs</a></li>
-            <li><a href="#" class="nav-link px-2">About</a></li>
-        </ul>
-        <div class="col-md-3 text-end"> <button type="button" class="btn btn-outline-primary me-2">Login</button>
-            <button type="button" class="btn btn-primary">Sign-up</button> </div>
-    </header>
-</div>
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <nav
+      th:fragment="header"
+      class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm"
+    >
+      <div class="container">
+        <!-- LOGO -->
+        <a class="navbar-brand fw-bold" href="/quadras"> ECOURTY </a>
+
+        <!-- BOTÃO MOBILE -->
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuPrincipal"
+          aria-controls="menuPrincipal"
+          aria-expanded="false"
+          aria-label="Abrir menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- MENU -->
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/quadras"> Quadras </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/clientes"> Clientes </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/agendamentos"> Agendamentos </a>
+            </li>
+          </ul>
+
+          <!-- USUÁRIO -->
+
+          <div class="d-flex align-items-center">
+            <span class="text-white me-3">
+              Olá,
+              <strong th:text="${usuario.nome}"></strong>
+            </span>
+
+            <a href="/logout" class="btn btn-outline-light btn-sm"> Sair </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>
