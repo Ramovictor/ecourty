@@ -62,7 +62,7 @@
               <p class="card-text">
                 <strong> Tipo: </strong>
 
-                <span th:text="${quadra.tipo}"> </span>
+                <span th:text="${quadra.tipoQuadra.tipo}"> </span>
               </p>
 
               <!-- VALOR -->
@@ -88,7 +88,7 @@
                   th:attr="
                                 data-id=${quadra.id},
                                 data-nome=${quadra.nome},
-                                data-tipo=${quadra.tipo},
+                                data-tipo=${quadra.tipoQuadra.tipo},
                                 data-valor=${quadra.valorPorHora}
                             "
                   onclick="abrirModalEditar(this)"

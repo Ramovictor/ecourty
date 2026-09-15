@@ -1,25 +1,32 @@
 package com.ecourty.ecourty.controller;
 
 import com.ecourty.ecourty.model.Quadra;
+import com.ecourty.ecourty.model.TipoQuadra;
 import com.ecourty.ecourty.model.Usuario;
+import com.ecourty.ecourty.repository.TipoQuadraRepository;
 import com.ecourty.ecourty.service.QuadraService;
 
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class QuadraController {
 
     private final QuadraService quadraService;
+    private final TipoQuadraRepository tipoQuadraRepository;
 
-    public QuadraController(QuadraService quadraService) {
+    public QuadraController(
+            QuadraService quadraService,
+            TipoQuadraRepository tipoQuadraRepository) {
+
         this.quadraService = quadraService;
+        this.tipoQuadraRepository = tipoQuadraRepository;
     }
 
     @GetMapping("/quadras")
@@ -35,13 +42,11 @@ public class QuadraController {
 
         model.addAttribute(
                 "quadras",
-                quadraService.listarPorUsuario(usuario)
-        );
+                quadraService.listarPorUsuario(usuario));
 
         model.addAttribute(
                 "usuario",
-                usuario
-        );
+                usuario);
 
         return "quadras";
     }
@@ -50,8 +55,7 @@ public class QuadraController {
     public String formularioCadastro(
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
@@ -62,15 +66,26 @@ public class QuadraController {
 
     @PostMapping("/quadras/cadastro")
     public String cadastrar(
-            Quadra quadra,
+            @RequestParam String nome,
+            @RequestParam String tipo,
+            @RequestParam Double valorPorHora,
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
         }
+
+        TipoQuadra tipoQuadra = tipoQuadraRepository.findByTipo(tipo)
+                .orElseGet(() -> tipoQuadraRepository.save(
+                        new TipoQuadra(tipo)));
+
+        Quadra quadra = new Quadra();
+
+        quadra.setNome(nome);
+        quadra.setTipoQuadra(tipoQuadra);
+        quadra.setValorPorHora(valorPorHora);
 
         quadraService.cadastrar(quadra, usuario);
 
@@ -83,8 +98,7 @@ public class QuadraController {
             HttpSession session,
             Model model) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
@@ -98,7 +112,7 @@ public class QuadraController {
 
         if (quadra.getUsuario() == null
                 || !quadra.getUsuario().getEmail()
-                .equalsIgnoreCase(usuario.getEmail())) {
+                        .equalsIgnoreCase(usuario.getEmail())) {
 
             return "redirect:/quadras";
         }
@@ -111,21 +125,29 @@ public class QuadraController {
     @PostMapping("/quadras/editar/{id}")
     public String editar(
             @PathVariable Long id,
-            Quadra quadra,
+            @RequestParam String nome,
+            @RequestParam String tipo,
+            @RequestParam Double valorPorHora,
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
         }
 
-        quadraService.atualizar(
-                id,
-                quadra,
-                usuario
-        );
+        TipoQuadra tipoQuadra = tipoQuadraRepository.findByTipo(tipo)
+                .orElseGet(() -> tipoQuadraRepository.save(
+                        new TipoQuadra(tipo)));
+
+        Quadra quadra = new Quadra();
+
+        quadra.setId(id);
+        quadra.setNome(nome);
+        quadra.setTipoQuadra(tipoQuadra);
+        quadra.setValorPorHora(valorPorHora);
+
+        quadraService.editar(quadra, usuario);
 
         return "redirect:/quadras";
     }
@@ -135,8 +157,7 @@ public class QuadraController {
             @PathVariable Long id,
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";

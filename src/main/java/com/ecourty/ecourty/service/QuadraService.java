@@ -1,103 +1,87 @@
 package com.ecourty.ecourty.service;
 
 import com.ecourty.ecourty.model.Quadra;
+import com.ecourty.ecourty.model.TipoQuadra;
 import com.ecourty.ecourty.model.Usuario;
-
+import com.ecourty.ecourty.repository.QuadraRepository;
+import com.ecourty.ecourty.repository.TipoQuadraRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class QuadraService {
 
-    private final List<Quadra> quadras = new ArrayList<>();
+    private final QuadraRepository quadraRepository;
+    private final TipoQuadraRepository tipoQuadraRepository;
 
-    private Long proximoId = 1L;
+    public QuadraService(
+            QuadraRepository quadraRepository,
+            TipoQuadraRepository tipoQuadraRepository) {
+
+        this.quadraRepository = quadraRepository;
+        this.tipoQuadraRepository = tipoQuadraRepository;
+    }
 
     public List<Quadra> listarPorUsuario(Usuario usuario) {
-
-        List<Quadra> quadrasDoUsuario = new ArrayList<>();
-
-        for (Quadra quadra : quadras) {
-
-            if (quadra.getUsuario() != null
-                    && quadra.getUsuario().getEmail() != null
-                    && quadra.getUsuario().getEmail()
-                    .equalsIgnoreCase(usuario.getEmail())) {
-
-                quadrasDoUsuario.add(quadra);
-            }
-        }
-
-        return quadrasDoUsuario;
+        return quadraRepository.findByUsuario(usuario);
     }
 
     public void cadastrar(Quadra quadra, Usuario usuario) {
 
-        quadra.setId(proximoId);
+        TipoQuadra tipoQuadra = tipoQuadraRepository
+                .findByTipo(quadra.getTipoQuadra().getTipo())
+                .orElseGet(() -> tipoQuadraRepository.save(
+                        new TipoQuadra(quadra.getTipoQuadra().getTipo())));
 
-        proximoId++;
-
+        quadra.setTipoQuadra(tipoQuadra);
         quadra.setUsuario(usuario);
 
-        quadras.add(quadra);
+        quadraRepository.save(quadra);
     }
 
     public Quadra buscarPorId(Long id) {
-
-        for (Quadra quadra : quadras) {
-
-            if (quadra.getId().equals(id)) {
-                return quadra;
-            }
-        }
-
-        return null;
+        return quadraRepository.findById(id).orElse(null);
     }
 
-    public boolean atualizar(
-            Long id,
-            Quadra dados,
-            Usuario usuario) {
+    public void editar(Quadra quadra, Usuario usuario) {
 
-        Quadra quadra = buscarPorId(id);
+        Quadra existente = quadraRepository.findById(quadra.getId()).orElse(null);
 
-        if (quadra == null) {
-            return false;
+        if (existente == null) {
+            return;
         }
 
-        if (quadra.getUsuario() == null
-                || !quadra.getUsuario().getEmail()
-                .equalsIgnoreCase(usuario.getEmail())) {
-
-            return false;
+        if (existente.getUsuario() == null ||
+                !existente.getUsuario().getEmail().equalsIgnoreCase(usuario.getEmail())) {
+            return;
         }
 
-        quadra.setNome(dados.getNome());
-        quadra.setTipo(dados.getTipo());
-        quadra.setValorPorHora(dados.getValorPorHora());
+        TipoQuadra tipoQuadra = tipoQuadraRepository
+                .findByTipo(quadra.getTipoQuadra().getTipo())
+                .orElseGet(() -> tipoQuadraRepository.save(
+                        new TipoQuadra(quadra.getTipoQuadra().getTipo())));
 
-        return true;
+        existente.setNome(quadra.getNome());
+        existente.setTipoQuadra(tipoQuadra);
+        existente.setValorPorHora(quadra.getValorPorHora());
+
+        quadraRepository.save(existente);
     }
 
-    public boolean excluir(Long id, Usuario usuario) {
+    public void excluir(Long id, Usuario usuario) {
 
-        Quadra quadra = buscarPorId(id);
+        Quadra quadra = quadraRepository.findById(id).orElse(null);
 
         if (quadra == null) {
-            return false;
+            return;
         }
 
-        if (quadra.getUsuario() == null
-                || !quadra.getUsuario().getEmail()
-                .equalsIgnoreCase(usuario.getEmail())) {
-
-            return false;
+        if (quadra.getUsuario() == null ||
+                !quadra.getUsuario().getEmail().equalsIgnoreCase(usuario.getEmail())) {
+            return;
         }
 
-        quadras.remove(quadra);
-
-        return true;
+        quadraRepository.delete(quadra);
     }
 }

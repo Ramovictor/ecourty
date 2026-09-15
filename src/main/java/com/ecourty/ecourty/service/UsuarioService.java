@@ -1,45 +1,33 @@
 package com.ecourty.ecourty.service;
 
 import com.ecourty.ecourty.model.Usuario;
+import com.ecourty.ecourty.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class UsuarioService {
 
-    private final List<Usuario> usuarios = new ArrayList<>();
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     public boolean cadastrar(Usuario usuario) {
 
-        for (Usuario u : usuarios) {
-
-            if (u.getEmail() != null
-                    && u.getEmail().equalsIgnoreCase(usuario.getEmail())) {
-
-                return false;
-            }
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+            return false;
         }
 
-        usuarios.add(usuario);
+        usuarioRepository.save(usuario);
 
         return true;
     }
 
     public Usuario login(String email, String senha) {
 
-        for (Usuario usuario : usuarios) {
-
-            if (usuario.getEmail() != null
-                    && usuario.getSenha() != null
-                    && usuario.getEmail().equalsIgnoreCase(email)
-                    && usuario.getSenha().equals(senha)) {
-
-                return usuario;
-            }
-        }
-
-        return null;
+        return usuarioRepository.findByEmail(email)
+                .filter(usuario -> usuario.getSenha().equals(senha))
+                .orElse(null);
     }
 }

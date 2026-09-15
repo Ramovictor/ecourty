@@ -1,22 +1,42 @@
 package com.ecourty.ecourty.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "quadra")
 public class Quadra {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
-    private String tipo;
+
+    @ManyToOne
+    @JoinColumn(name = "tipoquadra_id", nullable = false)
+    private TipoQuadra tipoQuadra;
+
+    @Column(name = "valor_hora")
     private Double valorPorHora;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     public Quadra() {
     }
 
-    public Quadra(Long id, String nome, String tipo, Double valorPorHora, Usuario usuario) {
-        this.id = id;
+    public Quadra(String nome, TipoQuadra tipoQuadra, Double valorPorHora) {
         this.nome = nome;
-        this.tipo = tipo;
+        this.tipoQuadra = tipoQuadra;
         this.valorPorHora = valorPorHora;
-        this.usuario = usuario;
     }
 
     public Long getId() {
@@ -35,12 +55,12 @@ public class Quadra {
         this.nome = nome;
     }
 
-    public String getTipo() {
-        return tipo;
+    public TipoQuadra getTipoQuadra() {
+        return tipoQuadra;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setTipoQuadra(TipoQuadra tipoQuadra) {
+        this.tipoQuadra = tipoQuadra;
     }
 
     public Double getValorPorHora() {
