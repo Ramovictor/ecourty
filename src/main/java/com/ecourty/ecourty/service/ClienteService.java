@@ -29,6 +29,27 @@ public class ClienteService {
         return clienteRepository.findById(id).orElse(null);
     }
 
+    public void editar(Cliente cliente, Usuario usuario) {
+
+        Cliente existente = clienteRepository.findById(cliente.getId()).orElse(null);
+
+        if (existente == null) {
+            return;
+        }
+
+        if (existente.getUsuario() == null ||
+                !existente.getUsuario().getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
+            return;
+        }
+
+        existente.setNome(cliente.getNome());
+        existente.setTelefone(cliente.getTelefone());
+        existente.setEmail(cliente.getEmail());
+
+        clienteRepository.save(existente);
+    }
+
     public boolean excluir(Long id, Usuario usuario) {
 
         Cliente cliente = clienteRepository.findById(id).orElse(null);
@@ -38,7 +59,8 @@ public class ClienteService {
         }
 
         if (cliente.getUsuario() == null ||
-                !cliente.getUsuario().getEmail().equalsIgnoreCase(usuario.getEmail())) {
+                !cliente.getUsuario().getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
             return false;
         }
 

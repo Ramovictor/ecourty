@@ -27,8 +27,7 @@ public class ClienteController {
             HttpSession session,
             Model model) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
@@ -36,13 +35,11 @@ public class ClienteController {
 
         model.addAttribute(
                 "clientes",
-                clienteService.listarPorUsuario(usuario)
-        );
+                clienteService.listarPorUsuario(usuario));
 
         model.addAttribute(
                 "usuario",
-                usuario
-        );
+                usuario);
 
         return "clientes";
     }
@@ -51,8 +48,7 @@ public class ClienteController {
     public String formularioCadastro(
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
@@ -66,8 +62,7 @@ public class ClienteController {
             Cliente cliente,
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
@@ -83,14 +78,32 @@ public class ClienteController {
             @PathVariable Long id,
             HttpSession session) {
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null) {
             return "redirect:/";
         }
 
         clienteService.excluir(id, usuario);
+
+        return "redirect:/clientes";
+    }
+
+    @PostMapping("/clientes/editar/{id}")
+    public String editar(
+            @PathVariable Long id,
+            Cliente cliente,
+            HttpSession session) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuario == null) {
+            return "redirect:/";
+        }
+
+        cliente.setId(id);
+
+        clienteService.editar(cliente, usuario);
 
         return "redirect:/clientes";
     }

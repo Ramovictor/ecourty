@@ -1,27 +1,47 @@
+
 package com.ecourty.ecourty.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "reserva")
 public class Agendamento {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "data")
     private LocalDate data;
 
+    @Column(name = "horario_inicio")
     private LocalTime horarioInicio;
 
+    @Column(name = "horario_fim")
     private LocalTime horarioFim;
 
     private Double valor;
 
+    @Column(name = "status_pagamento")
     private String statusPagamento;
 
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
+    @ManyToOne
+    @JoinColumn(name = "quadra_id", nullable = false)
     private Quadra quadra;
-
-    private Usuario usuario;
 
     public Agendamento() {
     }
@@ -34,8 +54,7 @@ public class Agendamento {
             Double valor,
             String statusPagamento,
             Cliente cliente,
-            Quadra quadra,
-            Usuario usuario) {
+            Quadra quadra) {
 
         this.id = id;
         this.data = data;
@@ -45,7 +64,6 @@ public class Agendamento {
         this.statusPagamento = statusPagamento;
         this.cliente = cliente;
         this.quadra = quadra;
-        this.usuario = usuario;
     }
 
     public Long getId() {
@@ -110,13 +128,5 @@ public class Agendamento {
 
     public void setQuadra(Quadra quadra) {
         this.quadra = quadra;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
     }
 }
