@@ -85,7 +85,9 @@
               <p class="card-text">
                 <strong> Data: </strong>
 
-                <span th:text="${agendamento.data}"> </span>
+                <span
+                  th:text="${#temporals.format(agendamento.data, 'dd/MM/yyyy')}"
+                ></span>
               </p>
 
               <!-- HORÁRIO -->

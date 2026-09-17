@@ -1,3 +1,4 @@
+
 package com.ecourty.ecourty.controller;
 
 import com.ecourty.ecourty.model.Agendamento;
@@ -37,6 +38,10 @@ public class AgendamentoController {
         this.quadraService = quadraService;
     }
 
+    // ======================================================
+    // LISTAR AGENDAMENTOS
+    // ======================================================
+
     @GetMapping("/agendamentos")
     public String listarAgendamentos(
             HttpSession session,
@@ -62,6 +67,10 @@ public class AgendamentoController {
         return "agendamentos";
     }
 
+    // ======================================================
+    // CADASTRAR
+    // ======================================================
+
     @PostMapping("/agendamentos/cadastro")
     public String cadastrar(
             Agendamento agendamento,
@@ -71,6 +80,14 @@ public class AgendamentoController {
 
         if (usuario == null) {
             return "redirect:/";
+        }
+
+        if (agendamento.getCliente() == null
+                || agendamento.getCliente().getId() == null
+                || agendamento.getQuadra() == null
+                || agendamento.getQuadra().getId() == null) {
+
+            return "redirect:/agendamentos";
         }
 
         Cliente cliente = clienteService.buscarPorId(
@@ -83,15 +100,37 @@ public class AgendamentoController {
             return "redirect:/agendamentos";
         }
 
+        // Garante que o cliente pertence ao usuário
+        if (cliente.getUsuario() == null
+                || !cliente.getUsuario()
+                        .getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
+
+            return "redirect:/agendamentos";
+        }
+
+        // Garante que a quadra pertence ao usuário
+        if (quadra.getUsuario() == null
+                || !quadra.getUsuario()
+                        .getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
+
+            return "redirect:/agendamentos";
+        }
+
         agendamento.setCliente(cliente);
         agendamento.setQuadra(quadra);
 
-        agendamentoService.cadastrar(
+        boolean cadastrado = agendamentoService.cadastrar(
                 agendamento,
                 usuario);
 
         return "redirect:/agendamentos";
     }
+
+    // ======================================================
+    // EDITAR
+    // ======================================================
 
     @PostMapping("/agendamentos/editar/{id}")
     public String editar(
@@ -105,6 +144,14 @@ public class AgendamentoController {
             return "redirect:/";
         }
 
+        if (agendamento.getCliente() == null
+                || agendamento.getCliente().getId() == null
+                || agendamento.getQuadra() == null
+                || agendamento.getQuadra().getId() == null) {
+
+            return "redirect:/agendamentos";
+        }
+
         Cliente cliente = clienteService.buscarPorId(
                 agendamento.getCliente().getId());
 
@@ -112,6 +159,24 @@ public class AgendamentoController {
                 agendamento.getQuadra().getId());
 
         if (cliente == null || quadra == null) {
+            return "redirect:/agendamentos";
+        }
+
+        // Garante que o cliente pertence ao usuário
+        if (cliente.getUsuario() == null
+                || !cliente.getUsuario()
+                        .getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
+
+            return "redirect:/agendamentos";
+        }
+
+        // Garante que a quadra pertence ao usuário
+        if (quadra.getUsuario() == null
+                || !quadra.getUsuario()
+                        .getEmail()
+                        .equalsIgnoreCase(usuario.getEmail())) {
+
             return "redirect:/agendamentos";
         }
 
@@ -125,6 +190,10 @@ public class AgendamentoController {
 
         return "redirect:/agendamentos";
     }
+
+    // ======================================================
+    // EXCLUIR
+    // ======================================================
 
     @GetMapping("/agendamentos/excluir/{id}")
     public String excluir(
@@ -142,5 +211,28 @@ public class AgendamentoController {
                 usuario);
 
         return "redirect:/agendamentos";
+    }
+
+    // ======================================================
+    // HISTÓRICO
+    // ======================================================
+
+    @GetMapping("/agendamentos/historico")
+    public String historico(
+            HttpSession session,
+            Model model) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuario == null) {
+            return "redirect:/";
+        }
+
+        List<Agendamento> agendamentos = agendamentoService.listarPorUsuario(usuario);
+
+        model.addAttribute("agendamentos", agendamentos);
+        model.addAttribute("usuario", usuario);
+
+        return "historico";
     }
 }

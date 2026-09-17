@@ -2,7 +2,6 @@
 package com.ecourty.ecourty.repository;
 
 import com.ecourty.ecourty.model.Agendamento;
-import com.ecourty.ecourty.model.Quadra;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -16,5 +15,9 @@ public interface AgendamentoRepository
 
         List<Agendamento> findByQuadraIdAndData(
                         Long quadraId,
+                        LocalDate data);
+
+        List<Agendamento> findByQuadraUsuarioIdAndDataBefore(
+                        Long usuarioId,
                         LocalDate data);
 }

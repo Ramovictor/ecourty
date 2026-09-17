@@ -1,9 +1,12 @@
+
 package com.ecourty.ecourty.service;
 
 import com.ecourty.ecourty.model.Agendamento;
 import com.ecourty.ecourty.model.Usuario;
+import com.ecourty.ecourty.repository.AgendamentoRepository;
 
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,26 +14,26 @@ import java.util.List;
 @Service
 public class AgendamentoService {
 
-    private final List<Agendamento> agendamentos = new ArrayList<>();
+    private final AgendamentoRepository agendamentoRepository;
 
-    private Long proximoId = 1L;
+    public AgendamentoService(
+            AgendamentoRepository agendamentoRepository) {
+
+        this.agendamentoRepository = agendamentoRepository;
+    }
+
+    // ======================================================
+    // LISTAR AGENDAMENTOS DO USUÁRIO
+    // ======================================================
 
     public List<Agendamento> listarPorUsuario(Usuario usuario) {
 
-        List<Agendamento> agendamentosDoUsuario = new ArrayList<>();
-
-        for (Agendamento agendamento : agendamentos) {
-
-            if (agendamento.getUsuario() != null
-                    && agendamento.getUsuario().getEmail() != null
-                    && agendamento.getUsuario().getEmail()
-                            .equalsIgnoreCase(usuario.getEmail())) {
-
-                agendamentosDoUsuario.add(agendamento);
-            }
+        if (usuario == null || usuario.getId() == null) {
+            return new ArrayList<>();
         }
 
-        return agendamentosDoUsuario;
+        return agendamentoRepository
+                .findByQuadraUsuarioId(usuario.getId());
     }
 
     // ======================================================
@@ -41,37 +44,22 @@ public class AgendamentoService {
             Agendamento novoAgendamento,
             Long idIgnorar) {
 
-        for (Agendamento existente : agendamentos) {
+        if (novoAgendamento.getQuadra() == null
+                || novoAgendamento.getQuadra().getId() == null
+                || novoAgendamento.getData() == null) {
+
+            return false;
+        }
+
+        List<Agendamento> agendamentosDoDia = agendamentoRepository.findByQuadraIdAndData(
+                novoAgendamento.getQuadra().getId(),
+                novoAgendamento.getData());
+
+        for (Agendamento existente : agendamentosDoDia) {
 
             // Ignora o próprio agendamento quando estiver editando
             if (idIgnorar != null
                     && existente.getId().equals(idIgnorar)) {
-
-                continue;
-            }
-
-            // Verifica se é a mesma quadra
-            if (existente.getQuadra() == null
-                    || novoAgendamento.getQuadra() == null) {
-
-                continue;
-            }
-
-            if (!existente.getQuadra().getId()
-                    .equals(novoAgendamento.getQuadra().getId())) {
-
-                continue;
-            }
-
-            // Verifica se é a mesma data
-            if (existente.getData() == null
-                    || novoAgendamento.getData() == null) {
-
-                continue;
-            }
-
-            if (!existente.getData()
-                    .equals(novoAgendamento.getData())) {
 
                 continue;
             }
@@ -101,32 +89,39 @@ public class AgendamentoService {
             Agendamento agendamento,
             Usuario usuario) {
 
-        // Verifica se o horário é válido
+        // Verifica data
+        if (agendamento.getData() == null) {
+            return false;
+        }
+
+        // Verifica horário
         if (agendamento.getHorarioInicio() == null
                 || agendamento.getHorarioFim() == null) {
 
             return false;
         }
 
+        // Verifica se horário inicial é antes do final
         if (!agendamento.getHorarioInicio()
                 .isBefore(agendamento.getHorarioFim())) {
 
             return false;
         }
 
-        // Verifica conflito
-        if (existeConflito(agendamento, null)) {
+        // Verifica se cliente e quadra existem
+        if (agendamento.getCliente() == null
+                || agendamento.getQuadra() == null) {
 
             return false;
         }
 
-        agendamento.setId(proximoId);
+        // Verifica conflito
+        if (existeConflito(agendamento, null)) {
+            return false;
+        }
 
-        proximoId++;
-
-        agendamento.setUsuario(usuario);
-
-        agendamentos.add(agendamento);
+        // Salva no MySQL
+        agendamentoRepository.save(agendamento);
 
         return true;
     }
@@ -137,14 +132,9 @@ public class AgendamentoService {
 
     public Agendamento buscarPorId(Long id) {
 
-        for (Agendamento agendamento : agendamentos) {
-
-            if (agendamento.getId().equals(id)) {
-                return agendamento;
-            }
-        }
-
-        return null;
+        return agendamentoRepository
+                .findById(id)
+                .orElse(null);
     }
 
     // ======================================================
@@ -162,11 +152,19 @@ public class AgendamentoService {
             return false;
         }
 
-        // Verifica se pertence ao usuário
-        if (agendamento.getUsuario() == null
-                || !agendamento.getUsuario().getEmail()
+        // Verifica se a quadra pertence ao usuário
+        if (agendamento.getQuadra() == null
+                || agendamento.getQuadra().getUsuario() == null
+                || !agendamento.getQuadra()
+                        .getUsuario()
+                        .getEmail()
                         .equalsIgnoreCase(usuario.getEmail())) {
 
+            return false;
+        }
+
+        // Verifica data
+        if (dados.getData() == null) {
             return false;
         }
 
@@ -177,15 +175,15 @@ public class AgendamentoService {
             return false;
         }
 
+        // Verifica horário inicial antes do final
         if (!dados.getHorarioInicio()
                 .isBefore(dados.getHorarioFim())) {
 
             return false;
         }
 
-        // Verifica conflito ignorando o próprio agendamento
+        // Verifica conflito
         if (existeConflito(dados, id)) {
-
             return false;
         }
 
@@ -211,6 +209,8 @@ public class AgendamentoService {
         agendamento.setQuadra(
                 dados.getQuadra());
 
+        agendamentoRepository.save(agendamento);
+
         return true;
     }
 
@@ -228,15 +228,31 @@ public class AgendamentoService {
             return false;
         }
 
-        if (agendamento.getUsuario() == null
-                || !agendamento.getUsuario().getEmail()
+        // Verifica se pertence ao usuário
+        if (agendamento.getQuadra() == null
+                || agendamento.getQuadra().getUsuario() == null
+                || !agendamento.getQuadra()
+                        .getUsuario()
+                        .getEmail()
                         .equalsIgnoreCase(usuario.getEmail())) {
 
             return false;
         }
 
-        agendamentos.remove(agendamento);
+        agendamentoRepository.delete(agendamento);
 
         return true;
+    }
+
+    public List<Agendamento> listarHistorico(Usuario usuario) {
+
+        if (usuario == null || usuario.getId() == null) {
+            return new ArrayList<>();
+        }
+
+        return agendamentoRepository
+                .findByQuadraUsuarioIdAndDataBefore(
+                        usuario.getId(),
+                        LocalDate.now());
     }
 }
