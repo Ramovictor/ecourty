@@ -30,24 +30,24 @@ INSERT INTO tipo_quadra (id, tipo) VALUES
 -- 3. CLIENTES
 -- =========================================================
 
-INSERT INTO cliente (id, nome, cpf, telefone, email) VALUES
-(1, 'Rafael Almeida', '123.456.789-01', '(48) 99911-2233', 'rafael.almeida@email.com'),
-(2, 'Juliana Martins', '234.567.890-12', '(48) 99822-3344', 'juliana.martins@email.com'),
-(3, 'Pedro Henrique', '345.678.901-23', '(48) 99733-4455', 'pedro.henrique@email.com'),
-(4, 'Camila Souza', '456.789.012-34', '(48) 99644-5566', 'camila.souza@email.com'),
-(5, 'Lucas Ferreira', '567.890.123-45', '(48) 99555-6677', 'lucas.ferreira@email.com');
+INSERT INTO cliente (id, nome, telefone, email, usuario_id) VALUES
+(1, 'Rafael Almeida', '(48) 99911-2233', 'rafael.almeida@email.com', 1),
+(2, 'Juliana Martins', '(48) 99822-3344', 'juliana.martins@email.com', 1),
+(3, 'Pedro Henrique', '(48) 99733-4455', 'pedro.henrique@email.com', 1),
+(4, 'Camila Souza', '(48) 99644-5566', 'camila.souza@email.com', 1),
+(5, 'Lucas Ferreira', '(48) 99555-6677', 'lucas.ferreira@email.com', 1);
 
 
 -- =========================================================
 -- 4. QUADRAS
 -- =========================================================
 
-INSERT INTO quadra (id, nome, tipoquadra_id, valor_hora) VALUES
-(1, 'Campo Principal', 1, 180.00),
-(2, 'Quadra Futsal A', 2, 120.00),
-(3, 'Quadra Vôlei Arena', 3, 100.00),
-(4, 'Quadra Basquete Central', 4, 90.00),
-(5, 'Quadra de Tênis Premium', 5, 110.00);
+INSERT INTO quadra (id, nome, tipoquadra_id, valor_hora, usuario_id) VALUES
+(1, 'Campo Principal', 1, 180.00, 1),
+(2, 'Quadra Futsal A', 2, 120.00, 1),
+(3, 'Quadra Vôlei Arena', 3, 100.00, 1),
+(4, 'Quadra Basquete Central', 4, 90.00, 1),
+(5, 'Quadra de Tênis Premium', 5, 110.00, 1);
 
 
 -- =========================================================
@@ -55,17 +55,17 @@ INSERT INTO quadra (id, nome, tipoquadra_id, valor_hora) VALUES
 -- =========================================================
 
 INSERT INTO reserva
-    (id, cliente_id, quadra_id, data_inicio, data_final, valor)
+    (id, cliente_id, quadra_id, data, horario_inicio, horario_fim, valor, status_pagamento)
 VALUES
-(1, 1, 1, '2026-09-01 18:00:00', '2026-09-01 20:00:00', 360.00),
+(1, 1, 1, '2026-09-01', '18:00:00', '20:00:00', 360.00, 'Pago'),
 
-(2, 2, 2, '2026-09-02 19:00:00', '2026-09-02 20:00:00', 120.00),
+(2, 2, 2, '2026-09-02', '19:00:00', '20:00:00', 120.00, 'Pago'),
 
-(3, 3, 3, '2026-09-03 17:00:00', '2026-09-03 19:00:00', 200.00),
+(3, 3, 3, '2026-09-03', '17:00:00', '19:00:00', 200.00, 'Pendente'),
 
-(4, 4, 4, '2026-09-04 20:00:00', '2026-09-04 21:00:00', 90.00),
+(4, 4, 4, '2026-09-04', '20:00:00', '21:00:00', 90.00, 'Pendente'),
 
-(5, 5, 5, '2026-09-05 15:00:00', '2026-09-05 17:00:00', 220.00);
+(5, 5, 5, '2026-09-05', '15:00:00', '17:00:00', 220.00, 'Pago');
 
 
 -- =========================================================

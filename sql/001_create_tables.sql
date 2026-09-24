@@ -31,13 +31,17 @@ CREATE TABLE usuario (
 CREATE TABLE cliente (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     nome VARCHAR(150) NOT NULL,
-    cpf VARCHAR(14) NOT NULL,
     telefone VARCHAR(20),
     email VARCHAR(150),
+    usuario_id BIGINT UNSIGNED NOT NULL,
 
     PRIMARY KEY (id),
-    UNIQUE KEY uk_cliente_cpf (cpf),
-    UNIQUE KEY uk_cliente_email (email)
+    UNIQUE KEY uk_cliente_email (email),
+    CONSTRAINT fk_cliente_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuario (id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -63,6 +67,7 @@ CREATE TABLE quadra (
     nome VARCHAR(100) NOT NULL,
     tipoquadra_id BIGINT UNSIGNED NOT NULL,
     valor_hora DECIMAL(10,2) NOT NULL,
+    usuario_id BIGINT UNSIGNED NOT NULL,
 
     PRIMARY KEY (id),
 
@@ -70,7 +75,13 @@ CREATE TABLE quadra (
         FOREIGN KEY (tipoquadra_id)
         REFERENCES tipo_quadra (id)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_quadra_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuario (id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -82,9 +93,11 @@ CREATE TABLE reserva (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     cliente_id BIGINT UNSIGNED NOT NULL,
     quadra_id BIGINT UNSIGNED NOT NULL,
-    data_inicio DATETIME NOT NULL,
-    data_final DATETIME NOT NULL,
-    valor DECIMAL(10,2) NOT NULL,
+    data DATE NOT NULL,
+    horario_inicio TIME NOT NULL,
+    horario_fim TIME NOT NULL,
+    valor DOUBLE,
+    status_pagamento VARCHAR(255),
 
     PRIMARY KEY (id),
 
@@ -100,8 +113,8 @@ CREATE TABLE reserva (
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
 
-    CONSTRAINT chk_reserva_datas
-        CHECK (data_final > data_inicio),
+    CONSTRAINT chk_reserva_horarios
+        CHECK (horario_fim > horario_inicio),
 
     CONSTRAINT chk_reserva_valor
         CHECK (valor >= 0)
@@ -141,7 +154,7 @@ CREATE INDEX idx_reserva_quadra
     ON reserva (quadra_id);
 
 CREATE INDEX idx_reserva_data
-    ON reserva (data_inicio, data_final);
+    ON reserva (data);
 
 CREATE INDEX idx_imagens_quadra
     ON imagens (quadra_id);

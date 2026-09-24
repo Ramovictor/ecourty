@@ -144,7 +144,7 @@ public class AgendamentoService {
     public boolean atualizar(
             Long id,
             Agendamento dados,
-            Usuario usuario) {
+            Object usuario) {
 
         Agendamento agendamento = buscarPorId(id);
 
@@ -158,7 +158,7 @@ public class AgendamentoService {
                 || !agendamento.getQuadra()
                         .getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
+                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
 
             return false;
         }

@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -74,7 +75,8 @@ public class AgendamentoController {
     @PostMapping("/agendamentos/cadastro")
     public String cadastrar(
             Agendamento agendamento,
-            HttpSession session) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -87,6 +89,8 @@ public class AgendamentoController {
                 || agendamento.getQuadra() == null
                 || agendamento.getQuadra().getId() == null) {
 
+            redirectAttributes.addFlashAttribute("erroAgendamento",
+                    "Selecione um cliente e uma quadra.");
             return "redirect:/agendamentos";
         }
 
@@ -97,6 +101,8 @@ public class AgendamentoController {
                 agendamento.getQuadra().getId());
 
         if (cliente == null || quadra == null) {
+            redirectAttributes.addFlashAttribute("erroAgendamento",
+                    "O cliente ou a quadra selecionada não existe mais.");
             return "redirect:/agendamentos";
         }
 
@@ -106,6 +112,8 @@ public class AgendamentoController {
                         .getEmail()
                         .equalsIgnoreCase(usuario.getEmail())) {
 
+            redirectAttributes.addFlashAttribute("erroAgendamento",
+                    "O cliente selecionado não pertence ao usuário logado.");
             return "redirect:/agendamentos";
         }
 
@@ -115,6 +123,8 @@ public class AgendamentoController {
                         .getEmail()
                         .equalsIgnoreCase(usuario.getEmail())) {
 
+            redirectAttributes.addFlashAttribute("erroAgendamento",
+                    "A quadra selecionada não pertence ao usuário logado.");
             return "redirect:/agendamentos";
         }
 
@@ -124,6 +134,14 @@ public class AgendamentoController {
         boolean cadastrado = agendamentoService.cadastrar(
                 agendamento,
                 usuario);
+
+        if (!cadastrado) {
+            redirectAttributes.addFlashAttribute("erroAgendamento",
+                    "Não foi possível cadastrar: verifique a data, os horários e se não há conflito.");
+        } else {
+            redirectAttributes.addFlashAttribute("sucessoAgendamento",
+                    "Agendamento cadastrado com sucesso.");
+        }
 
         return "redirect:/agendamentos";
     }
@@ -138,8 +156,7 @@ public class AgendamentoController {
             Agendamento agendamento,
             HttpSession session) {
 
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-
+        Object usuario;
         if (usuario == null) {
             return "redirect:/";
         }
@@ -166,7 +183,7 @@ public class AgendamentoController {
         if (cliente.getUsuario() == null
                 || !cliente.getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
+                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
 
             return "redirect:/agendamentos";
         }
@@ -175,7 +192,7 @@ public class AgendamentoController {
         if (quadra.getUsuario() == null
                 || !quadra.getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
+                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
 
             return "redirect:/agendamentos";
         }
