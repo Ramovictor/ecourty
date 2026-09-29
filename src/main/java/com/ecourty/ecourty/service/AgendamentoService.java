@@ -54,10 +54,9 @@ public class AgendamentoService {
             return false;
         }
 
-        List<Agendamento> agendamentosDoDia =
-                agendamentoRepository.findByQuadraIdAndData(
-                        novoAgendamento.getQuadra().getId(),
-                        novoAgendamento.getData());
+        List<Agendamento> agendamentosDoDia = agendamentoRepository.findByQuadraIdAndData(
+                novoAgendamento.getQuadra().getId(),
+                novoAgendamento.getData());
 
         for (Agendamento existente : agendamentosDoDia) {
 
@@ -69,9 +68,8 @@ public class AgendamentoService {
             }
 
             // Verifica conflito de horário
-            boolean conflito =
-                    novoAgendamento.getHorarioInicio()
-                            .isBefore(existente.getHorarioFim())
+            boolean conflito = novoAgendamento.getHorarioInicio()
+                    .isBefore(existente.getHorarioFim())
 
                     &&
 
@@ -280,5 +278,101 @@ public class AgendamentoService {
                 .findByQuadraUsuarioIdAndDataBeforeOrderByDataAscHorarioInicioAsc(
                         usuario.getId(),
                         LocalDate.now());
+    }
+    // ======================================================
+    // CONTROLE FINANCEIRO
+    // ======================================================
+
+    public double calcularTotalRecebido(Usuario usuario) {
+
+        if (usuario == null || usuario.getId() == null) {
+            return 0;
+        }
+
+        List<Agendamento> agendamentos = agendamentoRepository.findByQuadraUsuarioId(
+                usuario.getId());
+
+        LocalDate hoje = LocalDate.now();
+
+        double total = 0;
+
+        for (Agendamento agendamento : agendamentos) {
+
+            if (agendamento.getData() == null
+                    || agendamento.getValor() == null) {
+                continue;
+            }
+
+            boolean mesmoMes = agendamento.getData().getMonth() == hoje.getMonth()
+                    && agendamento.getData().getYear() == hoje.getYear();
+
+            boolean pago = "Pago".equalsIgnoreCase(
+                    agendamento.getStatusPagamento());
+
+            if (mesmoMes && pago) {
+                total += agendamento.getValor();
+            }
+        }
+
+        return total;
+    }
+
+    public double calcularTotalPendente(Usuario usuario) {
+
+        if (usuario == null || usuario.getId() == null) {
+            return 0;
+        }
+
+        List<Agendamento> agendamentos = agendamentoRepository.findByQuadraUsuarioId(
+                usuario.getId());
+
+        double total = 0;
+
+        for (Agendamento agendamento : agendamentos) {
+
+            if ("Pendente".equalsIgnoreCase(
+                    agendamento.getStatusPagamento())) {
+
+                if (agendamento.getValor() != null) {
+                    total += agendamento.getValor();
+                }
+            }
+        }
+
+        return total;
+    }
+
+    public double calcularFaturamentoTotal(Usuario usuario) {
+
+        if (usuario == null || usuario.getId() == null) {
+            return 0;
+        }
+
+        List<Agendamento> agendamentos = agendamentoRepository.findByQuadraUsuarioId(
+                usuario.getId());
+
+        LocalDate hoje = LocalDate.now();
+
+        double total = 0;
+
+        for (Agendamento agendamento : agendamentos) {
+
+            if (agendamento.getData() == null
+                    || agendamento.getValor() == null) {
+                continue;
+            }
+
+            boolean mesmoMes = agendamento.getData().getMonth() == hoje.getMonth()
+                    && agendamento.getData().getYear() == hoje.getYear();
+
+            boolean pago = "Pago".equalsIgnoreCase(
+                    agendamento.getStatusPagamento());
+
+            if (mesmoMes && pago) {
+                total += agendamento.getValor();
+            }
+        }
+
+        return total;
     }
 }

@@ -20,236 +20,287 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
 public class AgendamentoController {
 
-    private final AgendamentoService agendamentoService;
-    private final ClienteService clienteService;
-    private final QuadraService quadraService;
+        private final AgendamentoService agendamentoService;
+        private final ClienteService clienteService;
+        private final QuadraService quadraService;
 
-    public AgendamentoController(
-            AgendamentoService agendamentoService,
-            ClienteService clienteService,
-            QuadraService quadraService) {
+        public AgendamentoController(
+                        AgendamentoService agendamentoService,
+                        ClienteService clienteService,
+                        QuadraService quadraService) {
 
-        this.agendamentoService = agendamentoService;
-        this.clienteService = clienteService;
-        this.quadraService = quadraService;
-    }
-
-    // ======================================================
-    // LISTAR AGENDAMENTOS
-    // ======================================================
-
-    @GetMapping("/agendamentos")
-    public String listarAgendamentos(
-            HttpSession session,
-            Model model) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuario == null) {
-            return "redirect:/";
+                this.agendamentoService = agendamentoService;
+                this.clienteService = clienteService;
+                this.quadraService = quadraService;
         }
 
-        List<Agendamento> agendamentos = agendamentoService.listarPorUsuario(usuario);
+        // ======================================================
+        // LISTAR AGENDAMENTOS
+        // ======================================================
 
-        List<Cliente> clientes = clienteService.listarPorUsuario(usuario);
+        @GetMapping("/agendamentos")
+        public String listarAgendamentos(
+                        HttpSession session,
+                        Model model) {
 
-        List<Quadra> quadras = quadraService.listarPorUsuario(usuario);
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
-        model.addAttribute("agendamentos", agendamentos);
-        model.addAttribute("clientes", clientes);
-        model.addAttribute("quadras", quadras);
-        model.addAttribute("usuario", usuario);
+                if (usuario == null) {
+                        return "redirect:/";
+                }
 
-        return "agendamentos";
-    }
+                List<Agendamento> agendamentos = agendamentoService.listarPorUsuario(usuario);
 
-    // ======================================================
-    // CADASTRAR
-    // ======================================================
+                List<Cliente> clientes = clienteService.listarPorUsuario(usuario);
 
-    @PostMapping("/agendamentos/cadastro")
-    public String cadastrar(
-            Agendamento agendamento,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+                List<Quadra> quadras = quadraService.listarPorUsuario(usuario);
 
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+                model.addAttribute("agendamentos", agendamentos);
+                model.addAttribute("clientes", clientes);
+                model.addAttribute("quadras", quadras);
+                model.addAttribute("usuario", usuario);
 
-        if (usuario == null) {
-            return "redirect:/";
+                return "agendamentos";
         }
 
-        if (agendamento.getCliente() == null
-                || agendamento.getCliente().getId() == null
-                || agendamento.getQuadra() == null
-                || agendamento.getQuadra().getId() == null) {
+        // ======================================================
+        // CADASTRAR
+        // ======================================================
 
-            redirectAttributes.addFlashAttribute("erroAgendamento",
-                    "Selecione um cliente e uma quadra.");
-            return "redirect:/agendamentos";
+        @PostMapping("/agendamentos/cadastro")
+        public String cadastrar(
+                        Agendamento agendamento,
+                        HttpSession session,
+                        RedirectAttributes redirectAttributes) {
+
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+                if (usuario == null) {
+                        return "redirect:/";
+                }
+
+                if (agendamento.getCliente() == null
+                                || agendamento.getCliente().getId() == null
+                                || agendamento.getQuadra() == null
+                                || agendamento.getQuadra().getId() == null) {
+
+                        redirectAttributes.addFlashAttribute("erroAgendamento",
+                                        "Selecione um cliente e uma quadra.");
+                        return "redirect:/agendamentos";
+                }
+
+                Cliente cliente = clienteService.buscarPorId(
+                                agendamento.getCliente().getId());
+
+                Quadra quadra = quadraService.buscarPorId(
+                                agendamento.getQuadra().getId());
+
+                if (cliente == null || quadra == null) {
+                        redirectAttributes.addFlashAttribute("erroAgendamento",
+                                        "O cliente ou a quadra selecionada não existe mais.");
+                        return "redirect:/agendamentos";
+                }
+
+                // Garante que o cliente pertence ao usuário
+                if (cliente.getUsuario() == null
+                                || !cliente.getUsuario()
+                                                .getEmail()
+                                                .equalsIgnoreCase(usuario.getEmail())) {
+
+                        redirectAttributes.addFlashAttribute("erroAgendamento",
+                                        "O cliente selecionado não pertence ao usuário logado.");
+                        return "redirect:/agendamentos";
+                }
+
+                // Garante que a quadra pertence ao usuário
+                if (quadra.getUsuario() == null
+                                || !quadra.getUsuario()
+                                                .getEmail()
+                                                .equalsIgnoreCase(usuario.getEmail())) {
+
+                        redirectAttributes.addFlashAttribute("erroAgendamento",
+                                        "A quadra selecionada não pertence ao usuário logado.");
+                        return "redirect:/agendamentos";
+                }
+
+                agendamento.setCliente(cliente);
+                agendamento.setQuadra(quadra);
+
+                boolean cadastrado = agendamentoService.cadastrar(
+                                agendamento,
+                                usuario);
+
+                if (!cadastrado) {
+                        redirectAttributes.addFlashAttribute("erroAgendamento",
+                                        "Não foi possível cadastrar: verifique a data, os horários e se não há conflito.");
+                } else {
+                        redirectAttributes.addFlashAttribute("sucessoAgendamento",
+                                        "Agendamento cadastrado com sucesso.");
+                }
+
+                return "redirect:/agendamentos";
         }
 
-        Cliente cliente = clienteService.buscarPorId(
-                agendamento.getCliente().getId());
+        // ======================================================
+        // EDITAR
+        // ======================================================
 
-        Quadra quadra = quadraService.buscarPorId(
-                agendamento.getQuadra().getId());
+        @PostMapping("/agendamentos/editar/{id}")
+        public String editar(
+                        @PathVariable Long id,
+                        Agendamento agendamento,
+                        HttpSession session) {
 
-        if (cliente == null || quadra == null) {
-            redirectAttributes.addFlashAttribute("erroAgendamento",
-                    "O cliente ou a quadra selecionada não existe mais.");
-            return "redirect:/agendamentos";
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+                if (usuario == null) {
+                        return "redirect:/";
+                }
+
+                if (agendamento.getCliente() == null
+                                || agendamento.getCliente().getId() == null
+                                || agendamento.getQuadra() == null
+                                || agendamento.getQuadra().getId() == null) {
+
+                        return "redirect:/agendamentos";
+                }
+
+                Cliente cliente = clienteService.buscarPorId(
+                                agendamento.getCliente().getId());
+
+                Quadra quadra = quadraService.buscarPorId(
+                                agendamento.getQuadra().getId());
+
+                if (cliente == null || quadra == null) {
+                        return "redirect:/agendamentos";
+                }
+
+                // Garante que o cliente pertence ao usuário
+                if (cliente.getUsuario() == null
+                                || !cliente.getUsuario()
+                                                .getEmail()
+                                                .equalsIgnoreCase(usuario.getEmail())) {
+
+                        return "redirect:/agendamentos";
+                }
+
+                // Garante que a quadra pertence ao usuário
+                if (quadra.getUsuario() == null
+                                || !quadra.getUsuario()
+                                                .getEmail()
+                                                .equalsIgnoreCase(usuario.getEmail())) {
+
+                        return "redirect:/agendamentos";
+                }
+
+                agendamento.setCliente(cliente);
+                agendamento.setQuadra(quadra);
+
+                agendamentoService.atualizar(
+                                id,
+                                agendamento,
+                                usuario);
+
+                return "redirect:/agendamentos";
         }
 
-        // Garante que o cliente pertence ao usuário
-        if (cliente.getUsuario() == null
-                || !cliente.getUsuario()
-                        .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
+        // ======================================================
+        // EXCLUIR
+        // ======================================================
 
-            redirectAttributes.addFlashAttribute("erroAgendamento",
-                    "O cliente selecionado não pertence ao usuário logado.");
-            return "redirect:/agendamentos";
+        @GetMapping("/agendamentos/excluir/{id}")
+        public String excluir(
+                        @PathVariable Long id,
+                        HttpSession session) {
+
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+                if (usuario == null) {
+                        return "redirect:/";
+                }
+
+                agendamentoService.excluir(
+                                id,
+                                usuario);
+
+                return "redirect:/agendamentos";
         }
 
-        // Garante que a quadra pertence ao usuário
-        if (quadra.getUsuario() == null
-                || !quadra.getUsuario()
-                        .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
+        // ======================================================
+        // HISTÓRICO
+        // ======================================================
 
-            redirectAttributes.addFlashAttribute("erroAgendamento",
-                    "A quadra selecionada não pertence ao usuário logado.");
-            return "redirect:/agendamentos";
+        @GetMapping("/agendamentos/historico")
+        public String historico(
+                        HttpSession session,
+                        Model model) {
+
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+                if (usuario == null) {
+                        return "redirect:/";
+                }
+
+                List<Agendamento> agendamentos = agendamentoService.listarHistorico(usuario);
+
+                List<Cliente> clientes = clienteService.listarPorUsuario(usuario);
+
+                List<Quadra> quadras = quadraService.listarPorUsuario(usuario);
+
+                model.addAttribute("agendamentos", agendamentos);
+                model.addAttribute("clientes", clientes);
+                model.addAttribute("quadras", quadras);
+                model.addAttribute("usuario", usuario);
+
+                return "historico";
         }
+        // ======================================================
+        // CONTROLE FINANCEIRO
+        // ======================================================
 
-        agendamento.setCliente(cliente);
-        agendamento.setQuadra(quadra);
+        @GetMapping("/financeiro")
+        public String financeiro(
+                        HttpSession session,
+                        Model model) {
 
-        boolean cadastrado = agendamentoService.cadastrar(
-                agendamento,
-                usuario);
+                Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
-        if (!cadastrado) {
-            redirectAttributes.addFlashAttribute("erroAgendamento",
-                    "Não foi possível cadastrar: verifique a data, os horários e se não há conflito.");
-        } else {
-            redirectAttributes.addFlashAttribute("sucessoAgendamento",
-                    "Agendamento cadastrado com sucesso.");
+                if (usuario == null) {
+                        return "redirect:/";
+                }
+
+                double totalRecebido = agendamentoService.calcularTotalRecebido(usuario);
+
+                double totalPendente = agendamentoService.calcularTotalPendente(usuario);
+
+                double faturamentoTotal = agendamentoService.calcularFaturamentoTotal(usuario);
+
+                List<Agendamento> agendamentos = agendamentoService.listarPorUsuario(usuario);
+
+                List<Agendamento> historico = agendamentoService.listarHistorico(usuario);
+
+                List<Agendamento> todosAgendamentos = new java.util.ArrayList<>();
+
+                todosAgendamentos.addAll(agendamentos);
+                todosAgendamentos.addAll(historico);
+
+                // Filtra somente os agendamentos do mês atual
+                LocalDate hoje = LocalDate.now();
+
+                todosAgendamentos.removeIf(agendamento -> agendamento.getData() == null
+                                || agendamento.getData().getMonth() != hoje.getMonth()
+                                || agendamento.getData().getYear() != hoje.getYear());
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("totalRecebido", totalRecebido);
+                model.addAttribute("totalPendente", totalPendente);
+                model.addAttribute("faturamentoTotal", faturamentoTotal);
+                model.addAttribute("agendamentos", todosAgendamentos);
+
+                return "financeiro";
         }
-
-        return "redirect:/agendamentos";
-    }
-
-    // ======================================================
-    // EDITAR
-    // ======================================================
-
-    @PostMapping("/agendamentos/editar/{id}")
-    public String editar(
-            @PathVariable Long id,
-            Agendamento agendamento,
-            HttpSession session) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuario == null) {
-            return "redirect:/";
-        }
-
-        if (agendamento.getCliente() == null
-                || agendamento.getCliente().getId() == null
-                || agendamento.getQuadra() == null
-                || agendamento.getQuadra().getId() == null) {
-
-            return "redirect:/agendamentos";
-        }
-
-        Cliente cliente = clienteService.buscarPorId(
-                agendamento.getCliente().getId());
-
-        Quadra quadra = quadraService.buscarPorId(
-                agendamento.getQuadra().getId());
-
-        if (cliente == null || quadra == null) {
-            return "redirect:/agendamentos";
-        }
-
-        // Garante que o cliente pertence ao usuário
-        if (cliente.getUsuario() == null
-                || !cliente.getUsuario()
-                        .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
-
-            return "redirect:/agendamentos";
-        }
-
-        // Garante que a quadra pertence ao usuário
-        if (quadra.getUsuario() == null
-                || !quadra.getUsuario()
-                        .getEmail()
-                        .equalsIgnoreCase(usuario.getEmail())) {
-
-            return "redirect:/agendamentos";
-        }
-
-        agendamento.setCliente(cliente);
-        agendamento.setQuadra(quadra);
-
-        agendamentoService.atualizar(
-                id,
-                agendamento,
-                usuario);
-
-        return "redirect:/agendamentos";
-    }
-
-    // ======================================================
-    // EXCLUIR
-    // ======================================================
-
-    @GetMapping("/agendamentos/excluir/{id}")
-    public String excluir(
-            @PathVariable Long id,
-            HttpSession session) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuario == null) {
-            return "redirect:/";
-        }
-
-        agendamentoService.excluir(
-                id,
-                usuario);
-
-        return "redirect:/agendamentos";
-    }
-
-    // ======================================================
-    // HISTÓRICO
-    // ======================================================
-
-    @GetMapping("/agendamentos/historico")
-    public String historico(
-            HttpSession session,
-            Model model) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuario == null) {
-            return "redirect:/";
-        }
-
-        List<Agendamento> agendamentos = agendamentoService.listarHistorico(usuario);
-
-        model.addAttribute("agendamentos", agendamentos);
-        model.addAttribute("usuario", usuario);
-
-        return "historico";
-    }
 }
