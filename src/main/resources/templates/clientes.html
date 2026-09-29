@@ -1,348 +1,636 @@
 <!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
 
-    <title>Meus Clientes - Ecourty</title>
+    <meta charset="UTF-8">
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <body class="bg-light">
-    <!-- MENU SUPERIOR -->
+    <title>Meus Clientes - EasyCourty</title>
 
-    <div th:replace="~{fragments/header :: header}"></div>
+    <style>
 
-    <!-- CONTEÚDO -->
+        * {
+            box-sizing: border-box;
+        }
 
-    <div class="container mt-5">
-      <!-- CABEÇALHO -->
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            color: #0f1f3d;
+        }
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
+        .page-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 40px 24px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .page-description {
+            color: #718096;
+            font-size: 14px;
+            margin: 7px 0 0;
+        }
+
+        .primary-button {
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            padding: 11px 18px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .client-card {
+            background: #ffffff;
+            border: 1px solid #e8edf3;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 5px 18px rgba(15,31,61,0.05);
+        }
+
+        .client-name {
+            margin: 0 0 18px;
+            font-size: 18px;
+        }
+
+        .client-info {
+            font-size: 14px;
+            color: #596579;
+            margin: 9px 0;
+            word-break: break-word;
+        }
+
+        .client-info strong {
+            color: #0f1f3d;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            border: none;
+            text-decoration: none;
+            padding: 8px 13px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .btn-delete {
+            background: #fff1f2;
+            color: #dc2626;
+        }
+
+        .empty-message {
+            background: #ffffff;
+            border: 1px solid #e8edf3;
+            border-radius: 12px;
+            padding: 20px;
+            color: #718096;
+            margin-bottom: 25px;
+        }
+
+        /* MODAL */
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,31,61,0.50);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8edf3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close-button {
+            border: none;
+            background: transparent;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8edf3;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #dce2ea;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #2563eb;
+        }
+
+        .secondary-button {
+            border: none;
+            background: #eef1f5;
+            color: #475569;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+
+            .clients-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .clients-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page-container">
+
+    <div class="page-header">
+
         <div>
-          <h1>Meus Clientes</h1>
 
-          <p class="text-muted mb-0">Aqui estão seus clientes cadastrados.</p>
+            <h1 class="page-title">
+                Meus Clientes
+            </h1>
+
+            <p class="page-description">
+                Aqui estão seus clientes cadastrados.
+            </p>
+
         </div>
-
-        <!-- BOTÃO CADASTRAR CLIENTE -->
 
         <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#modalCadastroCliente"
+            type="button"
+            class="primary-button"
+            onclick="abrirModalCadastro()"
         >
-          + Cadastrar Cliente
+            + Cadastrar Cliente
         </button>
-      </div>
 
-      <!-- MENSAGEM CASO NÃO TENHA CLIENTES -->
+    </div>
 
-      <div th:if="${clientes.isEmpty()}" class="alert alert-info">
+    <div
+        th:if="${clientes.isEmpty()}"
+        class="empty-message"
+    >
         Você ainda não possui nenhum cliente cadastrado.
-      </div>
+    </div>
 
-      <!-- LISTA DE CLIENTES -->
+    <div class="clients-grid">
 
-      <div class="row">
-        <div class="col-md-4 mb-4" th:each="cliente : ${clientes}">
-          <div class="card shadow border-0 h-100">
-            <div class="card-body">
-              <!-- NOME -->
+        <div
+            class="client-card"
+            th:each="cliente : ${clientes}"
+        >
 
-              <h4 class="card-title" th:text="${cliente.nome}"></h4>
+            <h2
+                class="client-name"
+                th:text="${cliente.nome}">
+                Nome
+            </h2>
 
-              <!-- TELEFONE -->
+            <p class="client-info">
 
-              <p class="card-text">
                 <strong>Telefone:</strong>
 
-                <span th:text="${cliente.telefone}"></span>
-              </p>
+                <span th:text="${cliente.telefone}">
+                    Telefone
+                </span>
 
-              <!-- E-MAIL -->
+            </p>
 
-              <p class="card-text">
+            <p class="client-info">
+
                 <strong>E-mail:</strong>
 
-                <span th:text="${cliente.email}"></span>
-              </p>
+                <span th:text="${cliente.email}">
+                    email
+                </span>
 
-              <!-- BOTÕES -->
+            </p>
 
-              <div class="d-flex gap-2 mt-3">
-                <!-- EDITAR -->
+            <div class="actions">
 
                 <button
-                  type="button"
-                  class="btn btn-warning btn-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditarCliente"
-                  th:attr="
-                    data-id=${cliente.id},
-                    data-nome=${cliente.nome},
-                    data-telefone=${cliente.telefone},
-                    data-email=${cliente.email}
-                  "
-                  onclick="abrirModalEditarCliente(this)"
+                    type="button"
+                    class="btn-edit"
+                    th:attr="
+                        data-id=${cliente.id},
+                        data-nome=${cliente.nome},
+                        data-telefone=${cliente.telefone},
+                        data-email=${cliente.email}
+                    "
+                    onclick="abrirModalEditarCliente(this)"
                 >
-                  Editar
+                    Editar
                 </button>
 
-                <!-- EXCLUIR -->
-
                 <a
-                  th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
-                  class="btn btn-danger btn-sm"
+                    th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
+                    class="btn-delete"
                 >
-                  Excluir
+                    Excluir
                 </a>
-              </div>
+
             </div>
-          </div>
+
         </div>
-      </div>
+
     </div>
 
-    <!-- ====================================================== -->
-    <!-- MODAL CADASTRAR CLIENTE -->
-    <!-- ====================================================== -->
+</main>
 
-    <div
-      class="modal fade"
-      id="modalCadastroCliente"
-      tabindex="-1"
-      aria-labelledby="modalCadastroClienteLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <!-- CABEÇALHO -->
+<!-- MODAL CADASTRO -->
 
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalCadastroClienteLabel">
-              Cadastrar Cliente
-            </h5>
+<div
+    id="modalCadastroCliente"
+    class="modal-overlay"
+>
 
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
+    <div class="modal-box">
 
-          <!-- FORMULÁRIO -->
+        <div class="modal-header">
 
-          <form action="/clientes/cadastro" method="post">
-            <div class="modal-body">
-              <!-- NOME -->
-
-              <div class="mb-3">
-                <label for="nomeCliente" class="form-label">
-                  Nome do cliente
-                </label>
-
-                <input
-                  type="text"
-                  id="nomeCliente"
-                  name="nome"
-                  class="form-control"
-                  placeholder="Digite o nome do cliente"
-                  required
-                />
-              </div>
-
-              <!-- TELEFONE -->
-
-              <div class="mb-3">
-                <label for="telefoneCliente" class="form-label">
-                  Telefone
-                </label>
-
-                <input
-                  type="tel"
-                  id="telefoneCliente"
-                  name="telefone"
-                  class="form-control"
-                  placeholder="(00) 00000-0000"
-                  required
-                />
-              </div>
-
-              <!-- E-MAIL -->
-
-              <div class="mb-3">
-                <label for="emailCliente" class="form-label"> E-mail </label>
-
-                <input
-                  type="email"
-                  id="emailCliente"
-                  name="email"
-                  class="form-control"
-                  placeholder="cliente@email.com"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- RODAPÉ -->
-
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button type="submit" class="btn btn-primary">
+            <h2 class="modal-title">
                 Cadastrar Cliente
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================== -->
-    <!-- MODAL EDITAR CLIENTE -->
-    <!-- ====================================================== -->
-
-    <div
-      class="modal fade"
-      id="modalEditarCliente"
-      tabindex="-1"
-      aria-labelledby="modalEditarClienteLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <!-- CABEÇALHO -->
-
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalEditarClienteLabel">
-              Editar Cliente
-            </h5>
+            </h2>
 
             <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
+                type="button"
+                class="close-button"
+                onclick="fecharModalCadastro()"
+            >
+                ×
+            </button>
 
-          <!-- FORMULÁRIO -->
+        </div>
 
-          <form id="formEditarCliente" method="post">
+        <form
+            action="/clientes/cadastro"
+            method="post"
+        >
+
             <div class="modal-body">
-              <!-- NOME -->
 
-              <div class="mb-3">
-                <label for="nomeEditarCliente" class="form-label">
-                  Nome do cliente
-                </label>
+                <div class="form-group">
 
-                <input
-                  type="text"
-                  id="nomeEditarCliente"
-                  name="nome"
-                  class="form-control"
-                  required
-                />
-              </div>
+                    <label
+                        for="nomeCliente"
+                        class="form-label"
+                    >
+                        Nome do cliente
+                    </label>
 
-              <!-- TELEFONE -->
+                    <input
+                        type="text"
+                        id="nomeCliente"
+                        name="nome"
+                        class="form-control"
+                        placeholder="Digite o nome do cliente"
+                        required
+                    >
 
-              <div class="mb-3">
-                <label for="telefoneEditarCliente" class="form-label">
-                  Telefone
-                </label>
+                </div>
 
-                <input
-                  type="tel"
-                  id="telefoneEditarCliente"
-                  name="telefone"
-                  class="form-control"
-                  required
-                />
-              </div>
+                <div class="form-group">
 
-              <!-- E-MAIL -->
+                    <label
+                        for="telefoneCliente"
+                        class="form-label"
+                    >
+                        Telefone
+                    </label>
 
-              <div class="mb-3">
-                <label for="emailEditarCliente" class="form-label">
-                  E-mail
-                </label>
+                    <input
+                        type="tel"
+                        id="telefoneCliente"
+                        name="telefone"
+                        class="form-control"
+                        placeholder="(00) 00000-0000"
+                        required
+                    >
 
-                <input
-                  type="email"
-                  id="emailEditarCliente"
-                  name="email"
-                  class="form-control"
-                  required
-                />
-              </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label
+                        for="emailCliente"
+                        class="form-label"
+                    >
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="emailCliente"
+                        name="email"
+                        class="form-control"
+                        placeholder="cliente@email.com"
+                        required
+                    >
+
+                </div>
+
             </div>
-
-            <!-- RODAPÉ -->
 
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
 
-              <button type="submit" class="btn btn-warning">
-                Salvar alterações
-              </button>
+                <button
+                    type="button"
+                    class="secondary-button"
+                    onclick="fecharModalCadastro()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Cadastrar Cliente
+                </button>
+
             </div>
-          </form>
-        </div>
-      </div>
+
+        </form>
+
     </div>
 
-    <!-- BOOTSTRAP JAVASCRIPT -->
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- MODAL EDITAR -->
 
-    <!-- JAVASCRIPT DO MODAL DE EDIÇÃO -->
+<div
+    id="modalEditarCliente"
+    class="modal-overlay"
+>
 
-    <script>
-      function abrirModalEditarCliente(botao) {
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Editar Cliente
+            </h2>
+
+            <button
+                type="button"
+                class="close-button"
+                onclick="fecharModalEditar()"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <form
+            id="formEditarCliente"
+            method="post"
+        >
+
+            <div class="modal-body">
+
+                <div class="form-group">
+
+                    <label
+                        for="nomeEditarCliente"
+                        class="form-label"
+                    >
+                        Nome do cliente
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nomeEditarCliente"
+                        name="nome"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label
+                        for="telefoneEditarCliente"
+                        class="form-label"
+                    >
+                        Telefone
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="telefoneEditarCliente"
+                        name="telefone"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label
+                        for="emailEditarCliente"
+                        class="form-label"
+                    >
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="emailEditarCliente"
+                        name="email"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    onclick="fecharModalEditar()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Salvar alterações
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    function abrirModalCadastro() {
+
+        document
+            .getElementById("modalCadastroCliente")
+            .classList.add("active");
+
+    }
+
+    function fecharModalCadastro() {
+
+        document
+            .getElementById("modalCadastroCliente")
+            .classList.remove("active");
+
+    }
+
+    function abrirModalEditarCliente(botao) {
+
         const id = botao.getAttribute("data-id");
-
         const nome = botao.getAttribute("data-nome");
-
         const telefone = botao.getAttribute("data-telefone");
-
         const email = botao.getAttribute("data-email");
 
-        // Preenche os campos
-
         document.getElementById("nomeEditarCliente").value = nome;
-
         document.getElementById("telefoneEditarCliente").value = telefone;
-
         document.getElementById("emailEditarCliente").value = email;
 
-        // Define para onde o formulário será enviado
-
         document.getElementById("formEditarCliente").action =
-          "/clientes/editar/" + id;
-      }
-    </script>
-  </body>
+            "/clientes/editar/" + id;
+
+        document
+            .getElementById("modalEditarCliente")
+            .classList.add("active");
+    }
+
+    function fecharModalEditar() {
+
+        document
+            .getElementById("modalEditarCliente")
+            .classList.remove("active");
+
+    }
+
+</script>
+
+</body>
 </html>

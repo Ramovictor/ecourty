@@ -1,591 +1,1558 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
 
-    <title>Agendamentos - Ecourty</title>
+    <meta charset="UTF-8">
 
-    <!-- Bootstrap CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agendamentos - easycourty</title>
+
+
+    <!-- Bootstrap -->
+
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-  <body class="bg-light">
-    <!-- ====================================================== -->
-    <!-- MENU SUPERIOR -->
-    <!-- ====================================================== -->
 
-    <div th:replace="~{fragments/header :: header}"></div>
+    <!-- Bootstrap Icons -->
 
-    <!-- ====================================================== -->
-    <!-- CONTEÚDO -->
-    <!-- ====================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-    <div class="container mt-5">
-      <div
-        th:if="${erroAgendamento}"
-        class="alert alert-danger"
-        th:text="${erroAgendamento}"
-      ></div>
-      <div
-        th:if="${sucessoAgendamento}"
-        class="alert alert-success"
-        th:text="${sucessoAgendamento}"
-      ></div>
 
-      <!-- CABEÇALHO -->
+    <!-- Fonte -->
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1>Meus Agendamentos</h1>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-          <p class="text-muted mb-0">Gerencie os horários das suas quadras.</p>
+
+    <style>
+
+        :root {
+
+            --azul: #0050E0;
+            --azul-forte: #0064F0;
+            --azul-escuro: #001030;
+
+            --preto: #0B1220;
+            --texto: #1F2937;
+            --cinza: #64748B;
+
+            --fundo: #F5F8FC;
+
+            --branco: #FFFFFF;
+
+            --borda: #E2E8F0;
+
+            --verde-pago: #16A34A;
+            --amarelo: #D97706;
+            --vermelho: #DC2626;
+
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            background: var(--fundo);
+
+            color: var(--texto);
+
+            font-family: "Inter", sans-serif;
+
+            font-size: 14px;
+
+        }
+
+
+        .pagina {
+
+            min-height: calc(100vh - 72px);
+
+            padding: 42px 0 60px;
+
+        }
+
+
+        .container-easy {
+
+            max-width: 1380px;
+
+        }
+
+
+        /* CABEÇALHO */
+
+        .pagina-topo {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 28px;
+
+        }
+
+
+        .pagina-titulo h1 {
+
+            margin: 0;
+
+            color: var(--preto);
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.8px;
+
+        }
+
+
+        .pagina-titulo p {
+
+            margin: 7px 0 0;
+
+            color: var(--cinza);
+
+            font-size: 14px;
+
+        }
+
+
+        /* BOTÃO */
+
+        .btn-novo {
+
+            height: 44px;
+
+            padding: 0 19px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 9px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            transition: .2s;
+
+        }
+
+
+        .btn-novo:hover {
+
+            background: var(--azul-forte);
+
+            color: white;
+
+            transform: translateY(-1px);
+
+            box-shadow: 0 8px 20px rgba(0,80,224,.22);
+
+        }
+
+
+        /* ALERTAS */
+
+        .alerta {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 13px 16px;
+
+            border-radius: 9px;
+
+            margin-bottom: 14px;
+
+            font-size: 13px;
+
+        }
+
+
+        .alerta-sucesso {
+
+            background: #ECFDF5;
+
+            border: 1px solid #A7F3D0;
+
+            color: #047857;
+
+        }
+
+
+        .alerta-erro {
+
+            background: #FEF2F2;
+
+            border: 1px solid #FECACA;
+
+            color: #B91C1C;
+
+        }
+
+
+        /* CARDS */
+
+        .cards {
+
+            margin-top: 28px;
+
+        }
+
+
+        .card-agendamento {
+
+            height: 100%;
+
+            padding: 21px;
+
+            background: white;
+
+            border: 1px solid var(--borda);
+
+            border-radius: 13px;
+
+            box-shadow: 0 5px 20px rgba(15,23,42,.05);
+
+            transition: .2s;
+
+        }
+
+
+        .card-agendamento:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow: 0 12px 30px rgba(15,23,42,.10);
+
+        }
+
+
+        .card-topo {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 21px;
+
+        }
+
+
+        .cliente {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+        }
+
+
+        .avatar {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 50%;
+
+            background: #E8F0FF;
+
+            color: var(--azul);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 18px;
+
+        }
+
+
+        .cliente h2 {
+
+            margin: 0;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: var(--preto);
+
+        }
+
+
+        /* STATUS */
+
+        .status {
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+        }
+
+
+        .pago {
+
+            color: #15803D;
+
+            background: #DCFCE7;
+
+        }
+
+
+        .pendente {
+
+            color: #B45309;
+
+            background: #FEF3C7;
+
+        }
+
+
+        /* INFORMAÇÕES */
+
+        .info {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 13px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .info-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            color: var(--cinza);
+
+            font-size: 12px;
+
+        }
+
+
+        .info-item i {
+
+            width: 18px;
+
+            color: var(--azul);
+
+            font-size: 15px;
+
+            text-align: center;
+
+        }
+
+
+        .info-item strong {
+
+            color: var(--texto);
+
+            font-weight: 600;
+
+            margin-right: 3px;
+
+        }
+
+
+        .divisor {
+
+            height: 1px;
+
+            background: var(--borda);
+
+            margin-bottom: 16px;
+
+        }
+
+
+        /* AÇÕES */
+
+        .acoes {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        .btn-card {
+
+            flex: 1;
+
+            height: 37px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 6px;
+
+            border-radius: 7px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            background: white;
+
+        }
+
+
+        .editar {
+
+            border: 1px solid #F59E0B;
+
+            color: #D97706;
+
+        }
+
+
+        .editar:hover {
+
+            background: #FFF7ED;
+
+            color: #B45309;
+
+        }
+
+
+        .excluir {
+
+            border: 1px solid var(--vermelho);
+
+            color: var(--vermelho);
+
+        }
+
+
+        .excluir:hover {
+
+            background: #FEF2F2;
+
+            color: #B91C1C;
+
+        }
+
+
+        /* MODAL */
+
+        .modal-content {
+
+            border: none;
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            box-shadow: 0 25px 70px rgba(15,23,42,.20);
+
+        }
+
+
+        .modal-header {
+
+            padding: 20px 23px;
+
+            border-bottom: 1px solid var(--borda);
+
+        }
+
+
+        .modal-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            color: var(--preto);
+
+        }
+
+
+        .modal-body {
+
+            padding: 24px;
+
+        }
+
+
+        .modal-footer {
+
+            padding: 15px 23px;
+
+            background: #F8FAFC;
+
+            border-top: 1px solid var(--borda);
+
+        }
+
+
+        .form-label {
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .form-control,
+        .form-select {
+
+            min-height: 43px;
+
+            border: 1px solid #D6DEE9;
+
+            border-radius: 8px;
+
+            font-size: 13px;
+
+        }
+
+
+        .form-control:focus,
+        .form-select:focus {
+
+            border-color: var(--azul);
+
+            box-shadow: 0 0 0 3px rgba(0,80,224,.10);
+
+        }
+
+
+        .btn-cancelar {
+
+            height: 40px;
+
+            padding: 0 18px;
+
+            border: 1px solid #CBD5E1;
+
+            border-radius: 7px;
+
+            background: white;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .btn-salvar {
+
+            height: 40px;
+
+            padding: 0 20px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .btn-salvar:hover {
+
+            background: var(--azul-forte);
+
+            color: white;
+
+        }
+
+
+        .btn-edicao {
+
+            background: #F59E0B;
+
+            color: white;
+
+        }
+
+
+        .btn-edicao:hover {
+
+            background: #D97706;
+
+            color: white;
+
+        }
+
+
+        /* RESPONSIVO */
+
+        @media(max-width: 767px) {
+
+            .pagina {
+
+                padding: 25px 0;
+
+            }
+
+            .pagina-topo {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+                gap: 18px;
+
+            }
+
+            .btn-novo {
+
+                width: 100%;
+
+            }
+
+            .pagina-titulo h1 {
+
+                font-size: 25px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<main class="pagina">
+
+    <div class="container container-easy">
+
+
+        <!-- TOPO -->
+
+        <div class="pagina-topo">
+
+            <div class="pagina-titulo">
+
+                <h1>
+                    Meus Agendamentos
+                </h1>
+
+                <p>
+                    Gerencie os horários das suas quadras.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-novo"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCadastroAgendamento"
+            >
+
+                <i class="bi bi-plus-lg"></i>
+
+                Novo Agendamento
+
+            </button>
+
         </div>
 
-        <!-- BOTÃO NOVO AGENDAMENTO -->
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#modalCadastroAgendamento"
-        >
-          + Novo Agendamento
-        </button>
-      </div>
+        <!-- ERRO -->
 
-      <!-- ================================================== -->
-      <!-- MENSAGEM SEM AGENDAMENTOS -->
-      <!-- ================================================== -->
-
-      <div th:if="${agendamentos.isEmpty()}" class="alert alert-info">
-        Você ainda não possui nenhum agendamento cadastrado.
-      </div>
-
-      <!-- ================================================== -->
-      <!-- LISTA DE AGENDAMENTOS -->
-      <!-- ================================================== -->
-
-      <div class="row">
         <div
-          class="col-md-6 col-lg-4 mb-4"
-          th:each="agendamento : ${agendamentos}"
+            th:if="${erroAgendamento}"
+            class="alerta alerta-erro"
         >
-          <div class="card shadow border-0 h-100">
-            <div class="card-body">
-              <!-- CLIENTE -->
 
-              <h4 class="card-title">
-                <span th:text="${agendamento.cliente.nome}"> </span>
-              </h4>
+            <i class="bi bi-exclamation-circle"></i>
 
-              <!-- QUADRA -->
+            <span th:text="${erroAgendamento}">
+                Erro ao realizar agendamento.
+            </span>
 
-              <p class="card-text">
-                <strong> Quadra: </strong>
+        </div>
 
-                <span th:text="${agendamento.quadra.nome}"> </span>
-              </p>
 
-              <!-- DATA -->
+        <!-- SUCESSO -->
 
-              <p class="card-text">
-                <strong> Data: </strong>
+        <div
+            th:if="${sucessoAgendamento}"
+            class="alerta alerta-sucesso"
+        >
 
-                <span
-                  th:text="${#temporals.format(agendamento.data, 'dd/MM/yyyy')}"
-                ></span>
-              </p>
+            <i class="bi bi-check-circle"></i>
 
-              <!-- HORÁRIO -->
+            <span th:text="${sucessoAgendamento}">
+                Agendamento realizado com sucesso.
+            </span>
 
-              <p class="card-text">
-                <strong> Horário: </strong>
+        </div>
 
-                <span th:text="${agendamento.horarioInicio}"> </span>
 
-                até
+        <!-- VAZIO -->
 
-                <span th:text="${agendamento.horarioFim}"> </span>
-              </p>
+        <div
+            th:if="${agendamentos.isEmpty()}"
+            class="alert alert-primary"
+        >
 
-              <!-- VALOR -->
+            <i class="bi bi-calendar-x me-2"></i>
 
-              <p class="card-text">
-                <strong> Valor: </strong>
+            Você ainda não possui nenhum agendamento cadastrado.
 
-                R$
+        </div>
 
-                <span th:text="${agendamento.valor}"> </span>
-              </p>
 
-              <!-- PAGAMENTO -->
+        <!-- CARDS -->
 
-              <p class="card-text">
-                <strong> Pagamento: </strong>
+        <section class="cards">
 
-                <span
-                  th:if="${agendamento.statusPagamento == 'Pago'}"
-                  class="badge bg-success"
+            <div class="row g-4">
+
+                <div
+                    class="col-xl-3 col-lg-4 col-md-6"
+                    th:each="agendamento : ${agendamentos}"
                 >
-                  Pago
-                </span>
 
-                <span
-                  th:if="${agendamento.statusPagamento == 'Pendente'}"
-                  class="badge bg-warning text-dark"
-                >
-                  Pendente
-                </span>
-              </p>
+                    <article class="card-agendamento">
 
-              <!-- EXCLUIR -->
 
-              <div class="mt-3 d-flex gap-2">
-                <!-- EDITAR -->
+                        <div class="card-topo">
+
+                            <div class="cliente">
+
+                                <div class="avatar">
+
+                                    <i class="bi bi-person"></i>
+
+                                </div>
+
+                                <h2
+                                    th:text="${agendamento.cliente.nome}"
+                                >
+                                    João Silva
+                                </h2>
+
+                            </div>
+
+
+                            <span
+                                th:if="${agendamento.statusPagamento == 'Pago'}"
+                                class="status pago"
+                            >
+                                Pago
+                            </span>
+
+
+                            <span
+                                th:if="${agendamento.statusPagamento == 'Pendente'}"
+                                class="status pendente"
+                            >
+                                Pendente
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+
+                            <div class="info-item">
+
+                                <i class="bi bi-grid-3x3-gap"></i>
+
+                                <div>
+
+                                    <strong>Quadra:</strong>
+
+                                    <span
+                                        th:text="${agendamento.quadra.nome}"
+                                    >
+                                        Quadra Poliesportiva
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <i class="bi bi-calendar3"></i>
+
+                                <div>
+
+                                    <strong>Data:</strong>
+
+                                    <span
+                                        th:text="${#temporals.format(agendamento.data, 'dd/MM/yyyy')}"
+                                    >
+                                        15/05/2025
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <i class="bi bi-clock"></i>
+
+                                <div>
+
+                                    <strong>Horário:</strong>
+
+                                    <span
+                                        th:text="${agendamento.horarioInicio}"
+                                    >
+                                        18:00
+                                    </span>
+
+                                    até
+
+                                    <span
+                                        th:text="${agendamento.horarioFim}"
+                                    >
+                                        20:00
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <i class="bi bi-currency-dollar"></i>
+
+                                <div>
+
+                                    <strong>Valor:</strong>
+
+                                    R$
+
+                                    <span
+                                        th:text="${agendamento.valor}"
+                                    >
+                                        120,00
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <i class="bi bi-credit-card"></i>
+
+                                <div>
+
+                                    <strong>Pagamento:</strong>
+
+                                    <span
+                                        th:text="${agendamento.statusPagamento}"
+                                    >
+                                        Pago
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="divisor"></div>
+
+
+                        <div class="acoes">
+
+
+                            <button
+                                type="button"
+                                class="btn-card editar"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEditarAgendamento"
+
+                                th:attr="
+                                    data-id=${agendamento.id},
+                                    data-data=${agendamento.data},
+                                    data-inicio=${agendamento.horarioInicio},
+                                    data-fim=${agendamento.horarioFim},
+                                    data-valor=${agendamento.valor},
+                                    data-status=${agendamento.statusPagamento},
+                                    data-cliente=${agendamento.cliente.id},
+                                    data-quadra=${agendamento.quadra.id}
+                                "
+
+                                onclick="abrirModalEditar(this)"
+                            >
+
+                                <i class="bi bi-pencil"></i>
+
+                                Editar
+
+                            </button>
+
+
+                            <a
+                                th:href="@{/agendamentos/excluir/{id}(id=${agendamento.id})}"
+                                class="btn-card excluir"
+                            >
+
+                                <i class="bi bi-trash3"></i>
+
+                                Excluir
+
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+
+<!-- ============================================================
+     MODAL CADASTRO
+============================================================= -->
+
+<div
+    class="modal fade"
+    id="modalCadastroAgendamento"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Novo Agendamento
+                </h5>
 
                 <button
-                  type="button"
-                  class="btn btn-warning btn-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditarAgendamento"
-                  th:attr="
-            data-id=${agendamento.id},
-            data-data=${agendamento.data},
-            data-inicio=${agendamento.horarioInicio},
-            data-fim=${agendamento.horarioFim},
-            data-valor=${agendamento.valor},
-            data-status=${agendamento.statusPagamento},
-            data-cliente=${agendamento.cliente.id},
-            data-quadra=${agendamento.quadra.id}
-        "
-                  onclick="abrirModalEditar(this)"
-                >
-                  Editar
-                </button>
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
 
-                <!-- EXCLUIR -->
-
-                <a
-                  th:href="@{/agendamentos/excluir/{id}(id=${agendamento.id})}"
-                  class="btn btn-danger btn-sm"
-                >
-                  Excluir
-                </a>
-              </div>
             </div>
-          </div>
+
+
+            <form
+                action="/agendamentos/cadastro"
+                method="post"
+            >
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="cliente"
+                                class="form-label"
+                            >
+                                Cliente
+                            </label>
+
+                            <select
+                                id="cliente"
+                                name="cliente.id"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione um cliente
+                                </option>
+
+                                <option
+                                    th:each="cliente : ${clientes}"
+                                    th:value="${cliente.id}"
+                                    th:text="${cliente.nome}"
+                                ></option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="quadra"
+                                class="form-label"
+                            >
+                                Quadra
+                            </label>
+
+                            <select
+                                id="quadra"
+                                name="quadra.id"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione uma quadra
+                                </option>
+
+                                <option
+                                    th:each="quadra : ${quadras}"
+                                    th:value="${quadra.id}"
+                                    th:text="${quadra.nome}"
+                                ></option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="data"
+                                class="form-label"
+                            >
+                                Data
+                            </label>
+
+                            <input
+                                type="date"
+                                id="data"
+                                name="data"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="horarioInicio"
+                                class="form-label"
+                            >
+                                Horário de início
+                            </label>
+
+                            <input
+                                type="time"
+                                id="horarioInicio"
+                                name="horarioInicio"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="horarioFim"
+                                class="form-label"
+                            >
+                                Horário de término
+                            </label>
+
+                            <input
+                                type="time"
+                                id="horarioFim"
+                                name="horarioFim"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="valor"
+                                class="form-label"
+                            >
+                                Valor
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    R$
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="valor"
+                                    name="valor"
+                                    class="form-control"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="statusPagamento"
+                                class="form-label"
+                            >
+                                Status do pagamento
+                            </label>
+
+                            <select
+                                id="statusPagamento"
+                                name="statusPagamento"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="Pendente">
+                                    Pendente
+                                </option>
+
+                                <option value="Pago">
+                                    Pago
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn-cancelar"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-salvar"
+                    >
+                        Cadastrar Agendamento
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-      </div>
+
     </div>
 
-    <!-- ====================================================== -->
-    <!-- MODAL CADASTRAR AGENDAMENTO -->
-    <!-- ====================================================== -->
+</div>
 
-    <div
-      class="modal fade"
-      id="modalCadastroAgendamento"
-      tabindex="-1"
-      aria-labelledby="modalCadastroAgendamentoLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg">
+
+
+<!-- ============================================================
+     MODAL EDITAR
+============================================================= -->
+
+<div
+    class="modal fade"
+    id="modalEditarAgendamento"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
         <div class="modal-content">
-          <!-- CABEÇALHO DO MODAL -->
 
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalCadastroAgendamentoLabel">
-              Novo Agendamento
-            </h5>
+            <div class="modal-header">
 
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
+                <h5 class="modal-title">
+                    Editar Agendamento
+                </h5>
 
-          <!-- ================================================== -->
-          <!-- FORMULÁRIO -->
-          <!-- ================================================== -->
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
 
-          <form action="/agendamentos/cadastro" method="post">
-            <div class="modal-body">
-              <div class="row">
-                <!-- CLIENTE -->
-
-                <div class="col-md-6 mb-3">
-                  <label for="cliente" class="form-label"> Cliente </label>
-
-                  <select
-                    id="cliente"
-                    name="cliente.id"
-                    class="form-select"
-                    required
-                  >
-                    <option value="">Selecione um cliente</option>
-
-                    <option
-                      th:each="cliente : ${clientes}"
-                      th:value="${cliente.id}"
-                      th:text="${cliente.nome}"
-                    ></option>
-                  </select>
-                </div>
-
-                <!-- QUADRA -->
-
-                <div class="col-md-6 mb-3">
-                  <label for="quadra" class="form-label"> Quadra </label>
-
-                  <select
-                    id="quadra"
-                    name="quadra.id"
-                    class="form-select"
-                    required
-                  >
-                    <option value="">Selecione uma quadra</option>
-
-                    <option
-                      th:each="quadra : ${quadras}"
-                      th:value="${quadra.id}"
-                      th:text="${quadra.nome}"
-                    ></option>
-                  </select>
-                </div>
-
-                <!-- DATA -->
-
-                <div class="col-md-4 mb-3">
-                  <label for="data" class="form-label"> Data </label>
-
-                  <input
-                    type="date"
-                    id="data"
-                    name="data"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <!-- HORÁRIO INÍCIO -->
-
-                <div class="col-md-4 mb-3">
-                  <label for="horarioInicio" class="form-label">
-                    Horário de início
-                  </label>
-
-                  <input
-                    type="time"
-                    id="horarioInicio"
-                    name="horarioInicio"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <!-- HORÁRIO FIM -->
-
-                <div class="col-md-4 mb-3">
-                  <label for="horarioFim" class="form-label">
-                    Horário de término
-                  </label>
-
-                  <input
-                    type="time"
-                    id="horarioFim"
-                    name="horarioFim"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <!-- VALOR -->
-
-                <div class="col-md-6 mb-3">
-                  <label for="valor" class="form-label"> Valor </label>
-
-                  <div class="input-group">
-                    <span class="input-group-text"> R$ </span>
-
-                    <input
-                      type="number"
-                      id="valor"
-                      name="valor"
-                      class="form-control"
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <!-- STATUS PAGAMENTO -->
-
-                <div class="col-md-6 mb-3">
-                  <label for="statusPagamento" class="form-label">
-                    Status do pagamento
-                  </label>
-
-                  <select
-                    id="statusPagamento"
-                    name="statusPagamento"
-                    class="form-select"
-                    required
-                  >
-                    <option value="Pendente">Pendente</option>
-
-                    <option value="Pago">Pago</option>
-                  </select>
-                </div>
-              </div>
             </div>
 
-            <!-- ================================================== -->
-            <!-- RODAPÉ -->
-            <!-- ================================================== -->
 
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
+            <form
+                id="formEditarAgendamento"
+                method="post"
+            >
 
-              <button type="submit" class="btn btn-primary">
-                Cadastrar Agendamento
-              </button>
-            </div>
-          </form>
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="clienteEditar"
+                                class="form-label"
+                            >
+                                Cliente
+                            </label>
+
+                            <select
+                                id="clienteEditar"
+                                name="cliente.id"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione um cliente
+                                </option>
+
+                                <option
+                                    th:each="cliente : ${clientes}"
+                                    th:value="${cliente.id}"
+                                    th:text="${cliente.nome}"
+                                ></option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="quadraEditar"
+                                class="form-label"
+                            >
+                                Quadra
+                            </label>
+
+                            <select
+                                id="quadraEditar"
+                                name="quadra.id"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecione uma quadra
+                                </option>
+
+                                <option
+                                    th:each="quadra : ${quadras}"
+                                    th:value="${quadra.id}"
+                                    th:text="${quadra.nome}"
+                                ></option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="dataEditar"
+                                class="form-label"
+                            >
+                                Data
+                            </label>
+
+                            <input
+                                type="date"
+                                id="dataEditar"
+                                name="data"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="inicioEditar"
+                                class="form-label"
+                            >
+                                Horário de início
+                            </label>
+
+                            <input
+                                type="time"
+                                id="inicioEditar"
+                                name="horarioInicio"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="fimEditar"
+                                class="form-label"
+                            >
+                                Horário de término
+                            </label>
+
+                            <input
+                                type="time"
+                                id="fimEditar"
+                                name="horarioFim"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="valorEditar"
+                                class="form-label"
+                            >
+                                Valor
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    R$
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="valorEditar"
+                                    name="valor"
+                                    class="form-control"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="statusEditar"
+                                class="form-label"
+                            >
+                                Status do pagamento
+                            </label>
+
+                            <select
+                                id="statusEditar"
+                                name="statusPagamento"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="Pendente">
+                                    Pendente
+                                </option>
+
+                                <option value="Pago">
+                                    Pago
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn-cancelar"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-salvar btn-edicao"
+                    >
+                        Salvar alterações
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-      </div>
+
     </div>
 
-    <!-- ====================================================== -->
-    <!-- MODAL EDITAR AGENDAMENTO -->
-    <!-- ====================================================== -->
+</div>
 
-    <div
-      class="modal fade"
-      id="modalEditarAgendamento"
-      tabindex="-1"
-      aria-labelledby="modalEditarAgendamentoLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalEditarAgendamentoLabel">
-              Editar Agendamento
-            </h5>
 
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
 
-          <form id="formEditarAgendamento" method="post">
-            <div class="modal-body">
-              <div class="row">
-                <!-- CLIENTE -->
 
-                <div class="col-md-6 mb-3">
-                  <label for="clienteEditar" class="form-label">
-                    Cliente
-                  </label>
+<script>
 
-                  <select
-                    id="clienteEditar"
-                    name="cliente.id"
-                    class="form-select"
-                    required
-                  >
-                    <option value="">Selecione um cliente</option>
+function abrirModalEditar(botao) {
 
-                    <option
-                      th:each="cliente : ${clientes}"
-                      th:value="${cliente.id}"
-                      th:text="${cliente.nome}"
-                    ></option>
-                  </select>
-                </div>
+    const id = botao.getAttribute("data-id");
 
-                <!-- QUADRA -->
+    const data = botao.getAttribute("data-data");
 
-                <div class="col-md-6 mb-3">
-                  <label for="quadraEditar" class="form-label"> Quadra </label>
+    const inicio = botao.getAttribute("data-inicio");
 
-                  <select
-                    id="quadraEditar"
-                    name="quadra.id"
-                    class="form-select"
-                    required
-                  >
-                    <option value="">Selecione uma quadra</option>
+    const fim = botao.getAttribute("data-fim");
 
-                    <option
-                      th:each="quadra : ${quadras}"
-                      th:value="${quadra.id}"
-                      th:text="${quadra.nome}"
-                    ></option>
-                  </select>
-                </div>
+    const valor = botao.getAttribute("data-valor");
 
-                <!-- DATA -->
+    const status = botao.getAttribute("data-status");
 
-                <div class="col-md-4 mb-3">
-                  <label for="dataEditar" class="form-label"> Data </label>
+    const cliente = botao.getAttribute("data-cliente");
 
-                  <input
-                    type="date"
-                    id="dataEditar"
-                    name="data"
-                    class="form-control"
-                    required
-                  />
-                </div>
+    const quadra = botao.getAttribute("data-quadra");
 
-                <!-- INÍCIO -->
 
-                <div class="col-md-4 mb-3">
-                  <label for="inicioEditar" class="form-label">
-                    Horário de início
-                  </label>
+    document.getElementById("dataEditar").value = data;
 
-                  <input
-                    type="time"
-                    id="inicioEditar"
-                    name="horarioInicio"
-                    class="form-control"
-                    required
-                  />
-                </div>
+    document.getElementById("inicioEditar").value = inicio;
 
-                <!-- FIM -->
+    document.getElementById("fimEditar").value = fim;
 
-                <div class="col-md-4 mb-3">
-                  <label for="fimEditar" class="form-label">
-                    Horário de término
-                  </label>
+    document.getElementById("valorEditar").value = valor;
 
-                  <input
-                    type="time"
-                    id="fimEditar"
-                    name="horarioFim"
-                    class="form-control"
-                    required
-                  />
-                </div>
+    document.getElementById("statusEditar").value = status;
 
-                <!-- VALOR -->
+    document.getElementById("clienteEditar").value = cliente;
 
-                <div class="col-md-6 mb-3">
-                  <label for="valorEditar" class="form-label"> Valor </label>
+    document.getElementById("quadraEditar").value = quadra;
 
-                  <div class="input-group">
-                    <span class="input-group-text"> R$ </span>
 
-                    <input
-                      type="number"
-                      id="valorEditar"
-                      name="valor"
-                      class="form-control"
-                      step="0.01"
-                      min="0"
-                      required
-                    />
-                  </div>
-                </div>
+    document.getElementById("formEditarAgendamento").action =
+        "/agendamentos/editar/" + id;
 
-                <!-- PAGAMENTO -->
+}
 
-                <div class="col-md-6 mb-3">
-                  <label for="statusEditar" class="form-label">
-                    Status do pagamento
-                  </label>
+</script>
 
-                  <select
-                    id="statusEditar"
-                    name="statusPagamento"
-                    class="form-select"
-                    required
-                  >
-                    <option value="Pendente">Pendente</option>
 
-                    <option value="Pago">Pago</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+</body>
 
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button type="submit" class="btn btn-warning">
-                Salvar alterações
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================== -->
-    <!-- BOOTSTRAP JAVASCRIPT -->
-    <!-- ====================================================== -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-      function abrirModalEditar(botao) {
-        const id = botao.getAttribute("data-id");
-        const data = botao.getAttribute("data-data");
-        const inicio = botao.getAttribute("data-inicio");
-        const fim = botao.getAttribute("data-fim");
-        const valor = botao.getAttribute("data-valor");
-        const status = botao.getAttribute("data-status");
-        const cliente = botao.getAttribute("data-cliente");
-        const quadra = botao.getAttribute("data-quadra");
-
-        // Preenche os campos do modal
-
-        document.getElementById("dataEditar").value = data;
-
-        document.getElementById("inicioEditar").value = inicio;
-
-        document.getElementById("fimEditar").value = fim;
-
-        document.getElementById("valorEditar").value = valor;
-
-        document.getElementById("statusEditar").value = status;
-
-        document.getElementById("clienteEditar").value = cliente;
-
-        document.getElementById("quadraEditar").value = quadra;
-
-        // Define para qual endereço o formulário será enviado
-
-        document.getElementById("formEditarAgendamento").action =
-          "/agendamentos/editar/" + id;
-      }
-    </script>
-  </body>
 </html>

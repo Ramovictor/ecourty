@@ -1,384 +1,816 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
 
-    <title>Minhas Quadras - Ecourty</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Quadras - easycourty</title>
+
 
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-  <body class="bg-light">
-    <!-- MENU -->
 
-    <div th:replace="~{fragments/header :: header}"></div>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-    <div class="container mt-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1>Minhas Quadras</h1>
 
-          <p class="text-muted mb-0">
-            Olá,
-            <span th:text="${usuario.nome}"></span>!
-          </p>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <style>
+
+        :root {
+
+            --azul: #0050E0;
+            --azul-forte: #0064F0;
+            --escuro: #001030;
+
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            background: #F5F8FC;
+
+            color: #1F2937;
+
+            font-family: "Inter", sans-serif;
+
+        }
+
+
+        .pagina {
+
+            min-height: calc(100vh - 72px);
+
+            padding: 42px 0 60px;
+
+        }
+
+
+        .container-easy {
+
+            max-width: 1380px;
+
+        }
+
+
+        .topo {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 28px;
+
+        }
+
+
+        .topo h1 {
+
+            margin: 0;
+
+            color: #0B1220;
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+        }
+
+
+        .topo p {
+
+            margin: 7px 0 0;
+
+            color: #64748B;
+
+            font-size: 14px;
+
+        }
+
+
+        .btn-novo {
+
+            height: 44px;
+
+            padding: 0 18px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+        }
+
+
+        .btn-novo:hover {
+
+            background: var(--azul-forte);
+
+            color: white;
+
+        }
+
+
+        /* CARDS */
+
+        .quadra-card {
+
+            height: 100%;
+
+            background: white;
+
+            border: 1px solid #E2E8F0;
+
+            border-radius: 13px;
+
+            overflow: hidden;
+
+            box-shadow: 0 5px 20px rgba(15,23,42,.05);
+
+            transition: .2s;
+
+        }
+
+
+        .quadra-card:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow: 0 12px 30px rgba(15,23,42,.10);
+
+        }
+
+
+        .quadra-icon {
+
+            height: 135px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #001030,
+                    #0050E0
+                );
+
+            color: white;
+
+            font-size: 48px;
+
+        }
+
+
+        .quadra-conteudo {
+
+            padding: 21px;
+
+        }
+
+
+        .quadra-conteudo h2 {
+
+            margin: 0 0 7px;
+
+            color: #0B1220;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+        }
+
+
+        .quadra-tipo {
+
+            color: #64748B;
+
+            font-size: 12px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .informacoes {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 11px;
+
+        }
+
+
+        .info {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            color: #64748B;
+
+            font-size: 12px;
+
+        }
+
+
+        .info i {
+
+            color: var(--azul);
+
+            width: 17px;
+
+        }
+
+
+        .info strong {
+
+            color: #1F2937;
+
+        }
+
+
+        .acoes {
+
+            display: flex;
+
+            gap: 8px;
+
+            margin-top: 20px;
+
+            padding-top: 15px;
+
+            border-top: 1px solid #E2E8F0;
+
+        }
+
+
+        .btn-card {
+
+            flex: 1;
+
+            height: 36px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 6px;
+
+            border-radius: 7px;
+
+            background: white;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .editar {
+
+            border: 1px solid var(--azul);
+
+            color: var(--azul);
+
+        }
+
+
+        .editar:hover {
+
+            background: #EEF4FF;
+
+        }
+
+
+        .excluir {
+
+            border: 1px solid #DC2626;
+
+            color: #DC2626;
+
+        }
+
+
+        .excluir:hover {
+
+            background: #FEF2F2;
+
+        }
+
+
+        /* MODAL */
+
+        .modal-content {
+
+            border: none;
+
+            border-radius: 14px;
+
+        }
+
+
+        .modal-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+        }
+
+
+        .form-label {
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .form-control,
+        .form-select {
+
+            min-height: 43px;
+
+            border-radius: 8px;
+
+            border: 1px solid #D6DEE9;
+
+            font-size: 13px;
+
+        }
+
+
+        .form-control:focus,
+        .form-select:focus {
+
+            border-color: var(--azul);
+
+            box-shadow:
+                0 0 0 3px rgba(0,80,224,.10);
+
+        }
+
+
+        .btn-salvar {
+
+            height: 40px;
+
+            padding: 0 20px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        @media(max-width:767px) {
+
+            .topo {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+                gap: 18px;
+
+            }
+
+            .btn-novo {
+
+                justify-content: center;
+
+            }
+
+            .topo h1 {
+
+                font-size: 25px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<main class="pagina">
+
+    <div class="container container-easy">
+
+
+        <!-- TOPO -->
+
+        <div class="topo">
+
+            <div>
+
+                <h1>
+                    Quadras
+                </h1>
+
+                <p>
+                    Gerencie as quadras esportivas disponíveis.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-novo"
+                data-bs-toggle="modal"
+                data-bs-target="#modalQuadra"
+            >
+
+                <i class="bi bi-plus-lg"></i>
+
+                Nova Quadra
+
+            </button>
+
         </div>
 
-        <div>
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalCadastro"
-          >
-            + Cadastrar Quadra
-          </button>
+
+        <!-- LISTA -->
+
+        <div class="row g-4">
+
+
+            <div
+                class="col-xl-3 col-lg-4 col-md-6"
+                th:each="quadra : ${quadras}"
+            >
+
+                <article class="quadra-card">
+
+
+                    <div class="quadra-icon">
+
+                        <i class="bi bi-grid-3x3-gap"></i>
+
+                    </div>
+
+
+                    <div class="quadra-conteudo">
+
+
+                        <h2
+                            th:text="${quadra.nome}"
+                        >
+                            Quadra Poliesportiva
+                        </h2>
+
+
+                        <div class="quadra-tipo">
+
+                            <span
+                                th:text="${quadra.tipo}"
+                            >
+                                Futebol
+                            </span>
+
+                        </div>
+
+
+                        <div class="informacoes">
+
+
+                            <div class="info">
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                <span>
+
+                                    <strong>
+                                        Local:
+                                    </strong>
+
+                                    <span
+                                        th:text="${quadra.localizacao}"
+                                    >
+                                        Centro
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info">
+
+                                <i class="bi bi-currency-dollar"></i>
+
+                                <span>
+
+                                    <strong>
+                                        Valor:
+                                    </strong>
+
+                                    R$
+
+                                    <span
+                                        th:text="${quadra.valorHora}"
+                                    >
+                                        100,00
+                                    </span>
+
+                                    / hora
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                <span>
+
+                                    <strong>
+                                        Status:
+                                    </strong>
+
+                                    Disponível
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="acoes">
+
+
+                            <a
+                                th:href="@{/quadras/editar/{id}(id=${quadra.id})}"
+                                class="btn-card editar"
+                            >
+
+                                <i class="bi bi-pencil"></i>
+
+                                Editar
+
+                            </a>
+
+
+                            <a
+                                th:href="@{/quadras/excluir/{id}(id=${quadra.id})}"
+                                class="btn-card excluir"
+                            >
+
+                                <i class="bi bi-trash3"></i>
+
+                                Excluir
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
         </div>
-      </div>
 
-      <!-- MENSAGEM SE NÃO TIVER QUADRAS -->
+    </div>
 
-      <div th:if="${quadras.isEmpty()}" class="alert alert-info">
-        Você ainda não possui nenhuma quadra cadastrada.
-      </div>
+</main>
 
-      <!-- LISTA DE QUADRAS -->
 
-      <div class="row">
-        <div class="col-md-4 mb-4" th:each="quadra : ${quadras}">
-          <div class="card shadow border-0 h-100">
-            <div class="card-body">
-              <!-- NOME -->
+<!-- MODAL -->
 
-              <h4 class="card-title" th:text="${quadra.nome}"></h4>
+<div
+    class="modal fade"
+    id="modalQuadra"
+    tabindex="-1"
+>
 
-              <!-- TIPO -->
+    <div class="modal-dialog modal-dialog-centered">
 
-              <p class="card-text">
-                <strong> Tipo: </strong>
+        <div class="modal-content">
 
-                <span th:text="${quadra.tipoQuadra.tipo}"> </span>
-              </p>
 
-              <!-- VALOR -->
+            <div class="modal-header">
 
-              <p class="card-text">
-                <strong> Valor por hora: </strong>
-
-                R$
-
-                <span th:text="${quadra.valorPorHora}"> </span>
-              </p>
-
-              <!-- BOTÕES -->
-
-              <div class="d-flex gap-2 mt-3">
-                <!-- BOTÃO EDITAR -->
+                <h5 class="modal-title">
+                    Nova Quadra
+                </h5>
 
                 <button
-                  type="button"
-                  class="btn btn-warning btn-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditar"
-                  th:attr="
-                                data-id=${quadra.id},
-                                data-nome=${quadra.nome},
-                                data-tipo=${quadra.tipoQuadra.tipo},
-                                data-valor=${quadra.valorPorHora}
-                            "
-                  onclick="abrirModalEditar(this)"
-                >
-                  Editar
-                </button>
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
 
-                <!-- BOTÃO EXCLUIR -->
-
-                <a
-                  th:href="@{/quadras/excluir/{id}(id=${quadra.id})}"
-                  class="btn btn-danger btn-sm"
-                >
-                  Excluir
-                </a>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ====================================================== -->
-    <!-- MODAL CADASTRAR QUADRA -->
-    <!-- ====================================================== -->
 
-    <div
-      class="modal fade"
-      id="modalCadastro"
-      tabindex="-1"
-      aria-labelledby="modalCadastroLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <!-- CABEÇALHO -->
+            <form
+                action="/quadras/cadastro"
+                method="post"
+            >
 
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalCadastroLabel">
-              Cadastrar Quadra
-            </h5>
+                <div class="modal-body">
 
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
 
-          <!-- FORMULÁRIO -->
+                    <div class="mb-3">
 
-          <form action="/quadras/cadastro" method="post">
-            <div class="modal-body">
-              <!-- NOME -->
+                        <label
+                            for="nomeQuadra"
+                            class="form-label"
+                        >
+                            Nome da quadra
+                        </label>
 
-              <div class="mb-3">
-                <label for="nomeCadastro" class="form-label">
-                  Nome da quadra
-                </label>
+                        <input
+                            type="text"
+                            id="nomeQuadra"
+                            name="nome"
+                            class="form-control"
+                            placeholder="Ex.: Quadra Poliesportiva"
+                            required
+                        >
 
-                <input
-                  type="text"
-                  id="nomeCadastro"
-                  name="nome"
-                  class="form-control"
-                  placeholder="Ex: Quadra Principal"
-                  required
-                />
-              </div>
+                    </div>
 
-              <!-- TIPO -->
 
-              <div class="mb-3">
-                <label for="tipoCadastro" class="form-label"> Tipo </label>
+                    <div class="mb-3">
 
-                <select
-                  id="tipoCadastro"
-                  name="tipo"
-                  class="form-select"
-                  required
-                >
-                  <option value="">Selecione o tipo</option>
+                        <label
+                            for="tipo"
+                            class="form-label"
+                        >
+                            Tipo de quadra
+                        </label>
 
-                  <option value="Futebol">Futebol</option>
+                        <input
+                            type="text"
+                            id="tipo"
+                            name="tipo"
+                            class="form-control"
+                            placeholder="Ex.: Futebol"
+                            required
+                        >
 
-                  <option value="Futsal">Futsal</option>
+                    </div>
 
-                  <option value="Society">Society</option>
 
-                  <option value="Basquete">Basquete</option>
+                    <div class="mb-3">
 
-                  <option value="Vôlei">Vôlei</option>
+                        <label
+                            for="localizacao"
+                            class="form-label"
+                        >
+                            Localização
+                        </label>
 
-                  <option value="Tênis">Tênis</option>
+                        <input
+                            type="text"
+                            id="localizacao"
+                            name="localizacao"
+                            class="form-control"
+                            placeholder="Ex.: Centro"
+                        >
 
-                  <option value="Beach Tennis">Beach Tennis</option>
+                    </div>
 
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
 
-              <!-- VALOR -->
+                    <div class="mb-3">
 
-              <div class="mb-3">
-                <label for="valorCadastro" class="form-label">
-                  Valor por hora
-                </label>
+                        <label
+                            for="valorHora"
+                            class="form-label"
+                        >
+                            Valor por hora
+                        </label>
 
-                <div class="input-group">
-                  <span class="input-group-text"> R$ </span>
+                        <div class="input-group">
 
-                  <input
-                    type="number"
-                    id="valorCadastro"
-                    name="valorPorHora"
-                    class="form-control"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    required
-                  />
+                            <span class="input-group-text">
+                                R$
+                            </span>
+
+                            <input
+                                type="number"
+                                id="valorHora"
+                                name="valorHora"
+                                class="form-control"
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
                 </div>
-              </div>
-            </div>
 
-            <!-- RODAPÉ -->
 
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
+                <div class="modal-footer">
 
-              <button type="submit" class="btn btn-primary">Cadastrar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
 
-    <!-- ====================================================== -->
-    <!-- MODAL EDITAR QUADRA -->
-    <!-- ====================================================== -->
+                    <button
+                        type="submit"
+                        class="btn-salvar"
+                    >
+                        Cadastrar quadra
+                    </button>
 
-    <div
-      class="modal fade"
-      id="modalEditar"
-      tabindex="-1"
-      aria-labelledby="modalEditarLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <!-- CABEÇALHO -->
-
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalEditarLabel">Editar Quadra</h5>
-
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Fechar"
-            ></button>
-          </div>
-
-          <!-- FORMULÁRIO -->
-
-          <form id="formEditar" method="post">
-            <div class="modal-body">
-              <!-- NOME -->
-
-              <div class="mb-3">
-                <label for="nomeEditar" class="form-label">
-                  Nome da quadra
-                </label>
-
-                <input
-                  type="text"
-                  id="nomeEditar"
-                  name="nome"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <!-- TIPO -->
-
-              <div class="mb-3">
-                <label for="tipoEditar" class="form-label"> Tipo </label>
-
-                <select
-                  id="tipoEditar"
-                  name="tipo"
-                  class="form-select"
-                  required
-                >
-                  <option value="Futebol">Futebol</option>
-
-                  <option value="Futsal">Futsal</option>
-
-                  <option value="Society">Society</option>
-
-                  <option value="Basquete">Basquete</option>
-
-                  <option value="Vôlei">Vôlei</option>
-
-                  <option value="Tênis">Tênis</option>
-
-                  <option value="Beach Tennis">Beach Tennis</option>
-
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
-
-              <!-- VALOR -->
-
-              <div class="mb-3">
-                <label for="valorEditar" class="form-label">
-                  Valor por hora
-                </label>
-
-                <div class="input-group">
-                  <span class="input-group-text"> R$ </span>
-
-                  <input
-                    type="number"
-                    id="valorEditar"
-                    name="valorPorHora"
-                    class="form-control"
-                    step="0.01"
-                    min="0"
-                    required
-                  />
                 </div>
-              </div>
-            </div>
 
-            <!-- RODAPÉ -->
+            </form>
 
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button type="submit" class="btn btn-warning">
-                Salvar alterações
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
+
     </div>
 
-    <!-- BOOTSTRAP JAVASCRIPT -->
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JAVASCRIPT DO MODAL DE EDIÇÃO -->
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
 
-    <script>
-      function abrirModalEditar(botao) {
-        const id = botao.getAttribute("data-id");
 
-        const nome = botao.getAttribute("data-nome");
+</body>
 
-        const tipo = botao.getAttribute("data-tipo");
-
-        const valor = botao.getAttribute("data-valor");
-
-        // Preenche os campos
-
-        document.getElementById("nomeEditar").value = nome;
-
-        document.getElementById("tipoEditar").value = tipo;
-
-        document.getElementById("valorEditar").value = valor;
-
-        // Altera o endereço para onde o formulário será enviado
-
-        document.getElementById("formEditar").action = "/quadras/editar/" + id;
-      }
-    </script>
-  </body>
 </html>
