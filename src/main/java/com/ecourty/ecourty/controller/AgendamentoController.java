@@ -156,7 +156,7 @@ public class AgendamentoController {
             Agendamento agendamento,
             HttpSession session) {
 
-        Object usuario;
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
         if (usuario == null) {
             return "redirect:/";
         }
@@ -183,7 +183,7 @@ public class AgendamentoController {
         if (cliente.getUsuario() == null
                 || !cliente.getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
+                        .equalsIgnoreCase(usuario.getEmail())) {
 
             return "redirect:/agendamentos";
         }
@@ -192,7 +192,7 @@ public class AgendamentoController {
         if (quadra.getUsuario() == null
                 || !quadra.getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
+                        .equalsIgnoreCase(usuario.getEmail())) {
 
             return "redirect:/agendamentos";
         }
@@ -245,7 +245,7 @@ public class AgendamentoController {
             return "redirect:/";
         }
 
-        List<Agendamento> agendamentos = agendamentoService.listarPorUsuario(usuario);
+        List<Agendamento> agendamentos = agendamentoService.listarHistorico(usuario);
 
         model.addAttribute("agendamentos", agendamentos);
         model.addAttribute("usuario", usuario);

@@ -1,4 +1,3 @@
-
 package com.ecourty.ecourty.service;
 
 import com.ecourty.ecourty.model.Agendamento;
@@ -6,8 +5,9 @@ import com.ecourty.ecourty.model.Usuario;
 import com.ecourty.ecourty.repository.AgendamentoRepository;
 
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class AgendamentoService {
 
     // ======================================================
     // LISTAR AGENDAMENTOS DO USUÁRIO
+    // Hoje e datas futuras em ordem crescente
     // ======================================================
 
     public List<Agendamento> listarPorUsuario(Usuario usuario) {
@@ -33,7 +34,9 @@ public class AgendamentoService {
         }
 
         return agendamentoRepository
-                .findByQuadraUsuarioId(usuario.getId());
+                .findByQuadraUsuarioIdAndDataGreaterThanEqualOrderByDataAscHorarioInicioAsc(
+                        usuario.getId(),
+                        LocalDate.now());
     }
 
     // ======================================================
@@ -51,9 +54,10 @@ public class AgendamentoService {
             return false;
         }
 
-        List<Agendamento> agendamentosDoDia = agendamentoRepository.findByQuadraIdAndData(
-                novoAgendamento.getQuadra().getId(),
-                novoAgendamento.getData());
+        List<Agendamento> agendamentosDoDia =
+                agendamentoRepository.findByQuadraIdAndData(
+                        novoAgendamento.getQuadra().getId(),
+                        novoAgendamento.getData());
 
         for (Agendamento existente : agendamentosDoDia) {
 
@@ -65,8 +69,9 @@ public class AgendamentoService {
             }
 
             // Verifica conflito de horário
-            boolean conflito = novoAgendamento.getHorarioInicio()
-                    .isBefore(existente.getHorarioFim())
+            boolean conflito =
+                    novoAgendamento.getHorarioInicio()
+                            .isBefore(existente.getHorarioFim())
 
                     &&
 
@@ -106,6 +111,21 @@ public class AgendamentoService {
                 .isBefore(agendamento.getHorarioFim())) {
 
             return false;
+        }
+
+        // Verifica se a data não é passada
+        if (agendamento.getData().isBefore(LocalDate.now())) {
+            return false;
+        }
+
+        // Se for hoje, verifica se o horário já passou
+        if (agendamento.getData().isEqual(LocalDate.now())) {
+
+            if (!agendamento.getHorarioInicio()
+                    .isAfter(LocalTime.now())) {
+
+                return false;
+            }
         }
 
         // Verifica se cliente e quadra existem
@@ -158,7 +178,8 @@ public class AgendamentoService {
                 || !agendamento.getQuadra()
                         .getUsuario()
                         .getEmail()
-                        .equalsIgnoreCase(((Usuario) usuario).getEmail())) {
+                        .equalsIgnoreCase(
+                                ((Usuario) usuario).getEmail())) {
 
             return false;
         }
@@ -244,6 +265,11 @@ public class AgendamentoService {
         return true;
     }
 
+    // ======================================================
+    // HISTÓRICO
+    // Datas anteriores a hoje em ordem crescente
+    // ======================================================
+
     public List<Agendamento> listarHistorico(Usuario usuario) {
 
         if (usuario == null || usuario.getId() == null) {
@@ -251,7 +277,7 @@ public class AgendamentoService {
         }
 
         return agendamentoRepository
-                .findByQuadraUsuarioIdAndDataBefore(
+                .findByQuadraUsuarioIdAndDataBeforeOrderByDataAscHorarioInicioAsc(
                         usuario.getId(),
                         LocalDate.now());
     }

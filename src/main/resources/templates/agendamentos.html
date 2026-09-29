@@ -67,14 +67,37 @@
       </div>
 
       <!-- ================================================== -->
+<!-- FILTRO DE PAGAMENTO -->
+<!-- ================================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <label for="filtroPagamento" class="form-label fw-bold">
+      Filtrar por pagamento
+    </label>
+
+    <select
+      id="filtroPagamento"
+      class="form-select"
+      onchange="filtrarAgendamentos()"
+    >
+      <option value="Todos">Todos</option>
+      <option value="Pago">Pagos</option>
+      <option value="Pendente">Pendentes</option>
+    </select>
+  </div>
+</div>
+
+      <!-- ================================================== -->
       <!-- LISTA DE AGENDAMENTOS -->
       <!-- ================================================== -->
 
       <div class="row">
         <div
-          class="col-md-6 col-lg-4 mb-4"
-          th:each="agendamento : ${agendamentos}"
-        >
+  class="col-md-6 col-lg-4 mb-4 card-agendamento"
+  th:each="agendamento : ${agendamentos}"
+  th:attr="data-status=${agendamento.statusPagamento}"
+>
           <div class="card shadow border-0 h-100">
             <div class="card-body">
               <!-- CLIENTE -->
@@ -582,9 +605,25 @@
         document.getElementById("quadraEditar").value = quadra;
 
         // Define para qual endereço o formulário será enviado
-
+      }
         document.getElementById("formEditarAgendamento").action =
           "/agendamentos/editar/" + id;
+
+          function filtrarAgendamentos() {
+  const filtro = document.getElementById("filtroPagamento").value;
+
+  const agendamentos = document.querySelectorAll(".card-agendamento");
+
+  agendamentos.forEach(function (agendamento) {
+    const status = agendamento.getAttribute("data-status");
+
+    if (filtro === "Todos" || status === filtro) {
+      agendamento.style.display = "";
+    } else {
+      agendamento.style.display = "none";
+    }
+  });
+
       }
     </script>
   </body>

@@ -1,4 +1,3 @@
-
 package com.ecourty.ecourty.repository;
 
 import com.ecourty.ecourty.model.Agendamento;
@@ -17,7 +16,13 @@ public interface AgendamentoRepository
                         Long quadraId,
                         LocalDate data);
 
-        List<Agendamento> findByQuadraUsuarioIdAndDataBefore(
+        // Histórico em ordem crescente de data e horário
+        List<Agendamento> findByQuadraUsuarioIdAndDataBeforeOrderByDataAscHorarioInicioAsc(
+                        Long usuarioId,
+                        LocalDate data);
+
+        // Agendamentos de hoje e futuros em ordem crescente
+        List<Agendamento> findByQuadraUsuarioIdAndDataGreaterThanEqualOrderByDataAscHorarioInicioAsc(
                         Long usuarioId,
                         LocalDate data);
 }
