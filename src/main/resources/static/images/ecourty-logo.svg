@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" role="img" aria-labelledby="title">
+  <title id="title">EasyCourty</title>
+  <rect x="1" y="1" width="46" height="46" rx="10" fill="#c7ed72" />
+  <rect x="8" y="8" width="32" height="32" rx="3" fill="none" stroke="#10372c" stroke-width="2" />
+  <path d="M24 8v32M8 24h32" fill="none" stroke="#10372c" stroke-width="1.7" />
+  <circle cx="24" cy="24" r="5" fill="none" stroke="#10372c" stroke-width="1.7" />
+  <path d="M8 17h4a7 7 0 0 1 0 14H8m32-14h-4a7 7 0 0 0 0 14h4" fill="none" stroke="#10372c" stroke-width="1.5" />
+  <text x="57" y="32" fill="#ffffff" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="23" font-weight="700">Easy</text>
+  <text x="108" y="32" fill="#c7ed72" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="23" font-weight="700">Courty</text>
+</svg>

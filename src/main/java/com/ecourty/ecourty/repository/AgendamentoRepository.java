@@ -10,6 +10,8 @@ import java.util.List;
 public interface AgendamentoRepository
                 extends JpaRepository<Agendamento, Long> {
 
+        boolean existsByClienteId(Long clienteId);
+
         List<Agendamento> findByQuadraUsuarioId(Long usuarioId);
 
         List<Agendamento> findByQuadraIdAndData(

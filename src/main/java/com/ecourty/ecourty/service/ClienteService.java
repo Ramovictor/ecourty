@@ -2,6 +2,7 @@ package com.ecourty.ecourty.service;
 
 import com.ecourty.ecourty.model.Cliente;
 import com.ecourty.ecourty.model.Usuario;
+import com.ecourty.ecourty.repository.AgendamentoRepository;
 import com.ecourty.ecourty.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +12,13 @@ import java.util.List;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
-    public ClienteService(ClienteRepository clienteRepository) {
+    public ClienteService(
+            ClienteRepository clienteRepository,
+            AgendamentoRepository agendamentoRepository) {
         this.clienteRepository = clienteRepository;
+        this.agendamentoRepository = agendamentoRepository;
     }
 
     public List<Cliente> listarPorUsuario(Usuario usuario) {
@@ -61,6 +66,10 @@ public class ClienteService {
         if (cliente.getUsuario() == null ||
                 !cliente.getUsuario().getEmail()
                         .equalsIgnoreCase(usuario.getEmail())) {
+            return false;
+        }
+
+        if (agendamentoRepository.existsByClienteId(id)) {
             return false;
         }
 

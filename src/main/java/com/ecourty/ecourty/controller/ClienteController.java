@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class ClienteController {
@@ -76,7 +77,8 @@ public class ClienteController {
     @GetMapping("/clientes/excluir/{id}")
     public String excluir(
             @PathVariable Long id,
-            HttpSession session) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -84,7 +86,11 @@ public class ClienteController {
             return "redirect:/";
         }
 
-        clienteService.excluir(id, usuario);
+        if (!clienteService.excluir(id, usuario)) {
+            redirectAttributes.addFlashAttribute(
+                    "erroExclusaoCliente",
+                    "Não foi possível excluir o cliente. Verifique se há agendamentos vinculados.");
+        }
 
         return "redirect:/clientes";
     }
