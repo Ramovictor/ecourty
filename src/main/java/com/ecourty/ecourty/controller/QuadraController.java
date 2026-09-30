@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class QuadraController {
@@ -155,7 +156,8 @@ public class QuadraController {
     @GetMapping("/quadras/excluir/{id}")
     public String excluir(
             @PathVariable Long id,
-            HttpSession session) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -163,7 +165,11 @@ public class QuadraController {
             return "redirect:/";
         }
 
-        quadraService.excluir(id, usuario);
+        if (!quadraService.excluir(id, usuario)) {
+            redirectAttributes.addFlashAttribute(
+                    "erroExclusaoQuadra",
+                    "Não foi possível excluir a quadra. Verifique se há agendamentos vinculados.");
+        }
 
         return "redirect:/quadras";
     }

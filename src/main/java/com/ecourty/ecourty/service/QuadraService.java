@@ -3,6 +3,7 @@ package com.ecourty.ecourty.service;
 import com.ecourty.ecourty.model.Quadra;
 import com.ecourty.ecourty.model.TipoQuadra;
 import com.ecourty.ecourty.model.Usuario;
+import com.ecourty.ecourty.repository.AgendamentoRepository;
 import com.ecourty.ecourty.repository.QuadraRepository;
 import com.ecourty.ecourty.repository.TipoQuadraRepository;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,16 @@ public class QuadraService {
 
     private final QuadraRepository quadraRepository;
     private final TipoQuadraRepository tipoQuadraRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
     public QuadraService(
             QuadraRepository quadraRepository,
-            TipoQuadraRepository tipoQuadraRepository) {
+            TipoQuadraRepository tipoQuadraRepository,
+            AgendamentoRepository agendamentoRepository) {
 
         this.quadraRepository = quadraRepository;
         this.tipoQuadraRepository = tipoQuadraRepository;
+        this.agendamentoRepository = agendamentoRepository;
     }
 
     public List<Quadra> listarPorUsuario(Usuario usuario) {
@@ -69,19 +73,24 @@ public class QuadraService {
         quadraRepository.save(existente);
     }
 
-    public void excluir(Long id, Usuario usuario) {
+    public boolean excluir(Long id, Usuario usuario) {
 
         Quadra quadra = quadraRepository.findById(id).orElse(null);
 
         if (quadra == null) {
-            return;
+            return false;
         }
 
         if (quadra.getUsuario() == null ||
                 !quadra.getUsuario().getEmail().equalsIgnoreCase(usuario.getEmail())) {
-            return;
+            return false;
+        }
+
+        if (agendamentoRepository.existsByQuadraId(id)) {
+            return false;
         }
 
         quadraRepository.delete(quadra);
+        return true;
     }
 }

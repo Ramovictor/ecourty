@@ -12,6 +12,8 @@ public interface AgendamentoRepository
 
         boolean existsByClienteId(Long clienteId);
 
+        boolean existsByQuadraId(Long quadraId);
+
         List<Agendamento> findByQuadraUsuarioId(Long usuarioId);
 
         List<Agendamento> findByQuadraIdAndData(
